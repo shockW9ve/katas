@@ -1,0 +1,38 @@
+# --- Node / TypeScript / Angular ---
+node_modules/
+**/dist/
+coverage/
+.angular/
+playwright-report/
+test-results/
+*.log
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Keep lockfiles committed (choose one if you use it)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# --- .NET ---
+**/bin/
+**/obj/
+**/TestResults/
+*.user
+*.suo
+*.ncrunch*
+_ReSharper*/
+*.DotSettings.user
+*.coverage*
+
+# --- IDE / OS noise ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- Env files (if you add them) ---
+.env
+.env.*
+
