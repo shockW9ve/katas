@@ -1,45 +1,38 @@
 export function add(input: string) {
-  if (input === undefined || typeof input !== "string" || input === null) {
-    throw new Error(
-      "input can not be undefined, other type than String or null",
-    );
-  }
+  const MIN = 0;
+  const MAX = 999;
+  const HEADER = "//;/n";
 
   let sum = 0;
   if (input.length === 0) {
     return sum;
   }
 
-  let trimmed = input.trim();
+  const trimmed = input.trim();
   if (trimmed.length === 1) {
     return Number(trimmed);
   }
 
   let split: string[] = delimiter(trimmed);
-
+  let negatives: number[] = [];
   for (let i = 0; i < split.length; i++) {
-    if (Number(split[i]) < 0) {
-      throw new Error("negative numbers are not accepted");
-    } else if (Number(split[i]) > 1000) {
+    let token: number = Number(split[i]);
+    if (token < MIN) {
+      negatives.push(token);
+    } else if (token > MAX) {
       continue;
     } else {
-      sum += Number(split[i]);
+      sum += token;
     }
+  }
+
+  if (negatives.length > 0) {
+    throw new Error(`negative numbers are not accepted: ${negatives}`);
   }
 
   return sum;
 }
 
 function delimiter(str: string) {
-  let split: string[] = [];
-
-  if (str.indexOf("\n") >= 0) {
-    split = str.split("\n");
-  }
-
-  if (str.indexOf(",") >= 0) {
-    split = str.split(",");
-  }
-
-  return split;
+  return str.split(/[\s,;:]+/);
 }
