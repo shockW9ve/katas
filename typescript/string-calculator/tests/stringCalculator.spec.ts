@@ -33,7 +33,7 @@ describe("stringCalculator.add()", () => {
     expect(add("1\n2,3")).toBe(6);
   });
 
-  it("custom delimter starts with // then character then newline", () => {
+  it("custom delimiter starts with // then character then newline", () => {
     expect(add("//;\n1;2")).toBe(3);
   });
 });
