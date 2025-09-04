@@ -4,6 +4,16 @@ public class StringCalculator
 {
     public int Add(string input)
     {
-        throw new NotImplementedException();
+        if (input.Length == 0)
+        {
+            return 0;
+        }
+
+        // parse header
+        // build delimter
+        // tokenize
+        // numerize
+
+        return 9;
     }
 }

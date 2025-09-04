@@ -4,6 +4,17 @@ namespace StringCalculator.Tests;
 
 public class UnitTest1
 {
+    [Fact]
+    public void EmptyString_Returns_Zero()
+    {
+        string EMPTY = "";
+        int expected = 0;
+        // arrange
+        StringCalculator calculator = new StringCalculator();
+        // act
+        calculator.Add(EMPTY).Should().Be(expected);
+    }
+
     [Theory]
     [InlineData("3,6", 9)]
     [InlineData("3,6,9", 18)]
