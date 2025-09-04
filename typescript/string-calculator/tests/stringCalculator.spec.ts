@@ -36,4 +36,8 @@ describe("stringCalculator.add()", () => {
   it("custom delimiter starts with // then character then newline", () => {
     expect(add("//;\n1;2")).toBe(3);
   });
+
+  it("custom + newline mix", () => {
+    expect(add("//;\n1\n2;3")).toBe(6);
+  });
 });
