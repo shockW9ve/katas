@@ -2,7 +2,7 @@
 
 namespace StringCalculator.Tests;
 
-public class UnitTest1
+public class StringCalculatorTests
 {
     [Fact]
     public void EmptyString_Returns_Zero()
@@ -21,6 +21,17 @@ public class UnitTest1
     public void Sums_CommaSeperated_Numbers(string input, int expected)
     {
         // arrange
+        StringCalculator calculator = new StringCalculator();
+        // act + assert
+        calculator.Add(input).Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData("3\n3", 6)]
+    [InlineData("3,\n3,3", 9)]
+    public void Sums_With_Newline_Delimiter(string input, int expected)
+    {
+        // arrage 
         StringCalculator calculator = new StringCalculator();
         // act + assert
         calculator.Add(input).Should().Be(expected);
