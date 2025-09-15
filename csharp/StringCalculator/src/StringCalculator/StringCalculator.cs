@@ -2,7 +2,8 @@
 
 public class StringCalculator
 {
-    private readonly int LIMIT = 1000;
+    private readonly int UPPER_LIMIT = 1000;
+    private readonly int LOWER_LIMIT = 0;
     private readonly int HEADER_LENGTH = 4;
 
     public int Add(string input)
@@ -81,11 +82,18 @@ public class StringCalculator
         int sum = 0;
         for (int i = 0; i < tokens.Count; i++)
         {
-            if (Convert.ToInt32(tokens[i]) > LIMIT)
+            if (Convert.ToInt32(tokens[i]) > UPPER_LIMIT)
             {
                 continue;
             }
-            sum += Convert.ToInt32(tokens[i]);
+            else if (Convert.ToInt32(tokens[i]) < LOWER_LIMIT)
+            {
+                throw new ArgumentException("Negative numbers are not allowed");
+            }
+            else
+            {
+                sum += Convert.ToInt32(tokens[i]);
+            }
         }
         return sum;
     }
