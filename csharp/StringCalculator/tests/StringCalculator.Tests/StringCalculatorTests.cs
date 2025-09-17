@@ -15,8 +15,6 @@ public class StringCalculatorTests
         calculator.Add(EMPTY).Should().Be(expected);
     }
 
-    // [Theory]
-    // [InlineData("-3,6", 6)]
     [Fact]
     public void Negative_Numbers_Throws_ArgumentException()
     {
@@ -24,10 +22,10 @@ public class StringCalculatorTests
         StringCalculator calculator = new StringCalculator();
         // act + assert
         // assert version
-        Assert.Throws<ArgumentException>(() => calculator.Add("-3,6"));
+        // Assert.Throws<ArgumentException>(() => calculator.Add("-3,6"));
         // fluent assertion method
         Action action = () => calculator.Add("-3,6");
-        action.Should().Throw<ArgumentException>().WithMessage("Negative numbers are not allowed");
+        action.Should().Throw<ArgumentException>().WithMessage("Negative numbers are not allowed: -3");
     }
 
     [Theory]

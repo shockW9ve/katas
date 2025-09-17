@@ -1,10 +1,11 @@
-﻿namespace StringCalculator;
+﻿using System.Text;
+
+namespace StringCalculator;
 
 public class StringCalculator
 {
-    private readonly int UPPER_LIMIT = 1000;
-    private readonly int LOWER_LIMIT = 0;
-    private readonly int HEADER_LENGTH = 4;
+    private const int UpperLimit = 1000;
+    private const int HeaderLength = 4;
 
     public int Add(string input)
     {
@@ -16,7 +17,7 @@ public class StringCalculator
         // parse header
         Header parsedHeader = ParseHeader(input.Trim());
         // build delimter
-        HashSet<string> delimiter = BuildDelimter(parsedHeader);
+        HashSet<char> delimiter = BuildDelimiters(parsedHeader);
         // tokenize
         List<string> tokens = Tokenize(parsedHeader.body, delimiter);
         // numerize
@@ -27,74 +28,83 @@ public class StringCalculator
 
     private Header ParseHeader(string header)
     {
-        if (header.StartsWith("//") && header.Length >= HEADER_LENGTH && header[3].Equals("\n"))
+        if (header.StartsWith("//") && header.Length >= HeaderLength && header[3] == '\n')
         {
-            return new Header(header.Substring(4), header[2]);
+            return new Header(body: header.Substring(4), custom: header[2]);
         }
 
         return new Header(body: header, custom: null);
     }
 
-    private HashSet<string> BuildDelimter(Header header)
+    private HashSet<char> BuildDelimiters(Header header)
     {
-        string? custom = (header.custom.HasValue) ? Convert.ToString(header.custom) : "";
-        if (custom != null)
+        HashSet<char> delimiters = new HashSet<char> { ',', '\n' };
+        if (header.custom is char c)
         {
-            return new HashSet<string>([",", "\n", custom]);
+            delimiters.Add(c);
         }
-        else
-        {
-            return new HashSet<string>([",", "\n"]);
-        }
+
+        return delimiters;
     }
 
-    private List<string> Tokenize(string body, HashSet<string> delimiter)
+    private List<string> Tokenize(string body, HashSet<char> delimiters)
     {
         List<string> tokens = new List<string>();
-        string buffer = "";
+        StringBuilder buffer = new StringBuilder();
 
         foreach (var c in body)
         {
-            if (delimiter.Contains(Convert.ToString(c)))
+            if (delimiters.Contains(c))
             {
                 if (buffer.Length > 0)
                 {
-                    tokens.Add(buffer.Trim());
+                    tokens.Add(buffer.ToString().Trim());
+                    buffer.Clear();
                 }
-                buffer = "";
             }
             else
             {
-                buffer += c;
+                buffer.Append(c);
             }
         }
 
         if (buffer.Length > 0)
         {
-
-            tokens.Add(buffer.Trim());
+            tokens.Add(buffer.ToString().Trim());
         }
+
         return tokens;
     }
 
     private int Numerize(List<string> tokens)
     {
+        List<int> negatives = new List<int>();
         int sum = 0;
-        for (int i = 0; i < tokens.Count; i++)
+
+        foreach (string token in tokens)
         {
-            if (Convert.ToInt32(tokens[i]) > UPPER_LIMIT)
+            if (!int.TryParse(token, out int num))
             {
+                throw new ArgumentException($"Invalid token: '{token}'");
+            }
+
+            if (num < 0)
+            {
+                negatives.Add(num);
                 continue;
             }
-            else if (Convert.ToInt32(tokens[i]) < LOWER_LIMIT)
+
+            if (num <= UpperLimit)
             {
-                throw new ArgumentException("Negative numbers are not allowed");
-            }
-            else
-            {
-                sum += Convert.ToInt32(tokens[i]);
+                sum += num;
             }
         }
+
+        if (negatives.Count > 0)
+        {
+            throw new ArgumentException($"Negative numbers are not allowed: {string.Join(",", negatives)}");
+        }
+
         return sum;
     }
 }
