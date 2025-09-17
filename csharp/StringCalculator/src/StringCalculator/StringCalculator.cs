@@ -26,7 +26,7 @@ public class StringCalculator
         return numbers;
     }
 
-    private Header ParseHeader(string header)
+    private static Header ParseHeader(string header)
     {
         if (header.StartsWith("//") && header.Length >= HeaderLength && header[3] == '\n')
         {
@@ -36,7 +36,7 @@ public class StringCalculator
         return new Header(body: header, custom: null);
     }
 
-    private HashSet<char> BuildDelimiters(Header header)
+    private static HashSet<char> BuildDelimiters(Header header)
     {
         HashSet<char> delimiters = new HashSet<char> { ',', '\n' };
         if (header.custom is char c)
@@ -47,7 +47,7 @@ public class StringCalculator
         return delimiters;
     }
 
-    private List<string> Tokenize(string body, HashSet<char> delimiters)
+    private static List<string> Tokenize(string body, HashSet<char> delimiters)
     {
         List<string> tokens = new List<string>();
         StringBuilder buffer = new StringBuilder();
@@ -76,7 +76,7 @@ public class StringCalculator
         return tokens;
     }
 
-    private int Numerize(List<string> tokens)
+    private static int Numerize(List<string> tokens)
     {
         List<int> negatives = new List<int>();
         int sum = 0;
