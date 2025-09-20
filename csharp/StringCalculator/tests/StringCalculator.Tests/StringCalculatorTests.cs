@@ -39,6 +39,15 @@ public class StringCalculatorTests
     }
 
     [Theory]
+    [InlineData("1, 2, 3", 6)]     // spaces after delimiter
+    [InlineData(" 1 , 2 ", 3)]     // leading/trailing spaces
+    public void Ignores_Whitespace_Around_Tokens(string input, int expected)
+    {
+        var calc = new StringCalculator();
+        calc.Add(input).Should().Be(expected);
+    }
+
+    [Theory]
     [InlineData("3,6", 9)]
     [InlineData("3,6,9", 18)]
     [InlineData("3,1001,6,9", 18)]
