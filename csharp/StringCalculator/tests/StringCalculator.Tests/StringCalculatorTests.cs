@@ -28,6 +28,17 @@ public class StringCalculatorTests
         action.Should().Throw<ArgumentException>().WithMessage("Negative numbers are not allowed: -3");
     }
 
+    [Fact]
+    public void Negative_Numbers_Throws_With_Numbers_List()
+    {
+        // arrange 
+        StringCalculator calculator = new StringCalculator();
+        string input = "3,-6,-9";
+        // act + assert
+        Action action = () => calculator.Add(input);
+        action.Should().Throw<ArgumentException>().WithMessage("Negative numbers are not allowed: -6,-9");
+    }
+
     [Theory]
     [InlineData("3,6", 9)]
     [InlineData("3,6,9", 18)]
@@ -53,6 +64,7 @@ public class StringCalculatorTests
 
     [Theory]
     [InlineData("//;\n9;9", 18)]
+    [InlineData("//;\n9;9;9", 27)]
     public void Uses_Custom_SingleChar_Delimiter(string input, int expected)
     {
         // arrange
@@ -60,4 +72,17 @@ public class StringCalculatorTests
         // act + assert
         calculator.Add(input).Should().Be(expected);
     }
+
+    [Fact]
+    public void Adjecent_Delimiter_Do_Not_Crash()
+    {
+        // arrange
+        StringCalculator calculator = new StringCalculator();
+        string input = "1,\n2,3";
+        int expected = 6;
+        // act + assert
+        calculator.Add(input).Should().Be(expected);
+    }
+
+
 }
