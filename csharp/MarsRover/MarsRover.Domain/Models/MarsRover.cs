@@ -27,6 +27,12 @@ public class MarsRover
 
         foreach (char c in turn.ToUpper())
         {
+            if (c.Equals('M'))
+            {
+                Move();
+                continue;
+            }
+
             switch (Compas)
             {
                 case Direction.North:
@@ -78,5 +84,29 @@ public class MarsRover
                     break;
             }
         }
+    }
+
+    public void Move()
+    {
+        if (Compas is Direction.North)
+        {
+            Y_Position++;
+        }
+
+        if (Compas is Direction.East)
+        {
+            X_Position++;
+        }
+
+        if (Compas is Direction.South)
+        {
+            Y_Position--;
+        }
+
+        if (Compas is Direction.West)
+        {
+            X_Position--;
+        }
+
     }
 }

@@ -1,4 +1,5 @@
 using Space.Models;
+using Space.Helpers;
 using FluentAssertions;
 
 namespace Space.Tests;
@@ -31,10 +32,94 @@ public class MovementTests
             Y_Position = 0,
             X_Position = 0
         };
+
+        string direction = "l";
         // act
-
+        sut.Turn(direction);
+        var result = sut.Compas;
         // assert
-
+        result.Should().Be(Direction.West);
     }
 
+
+    [Fact]
+    public void Turning_Twice_In_Same_Direction_Should_Happen_In_180Degrees()
+    {
+        // arrange 
+        var sut = new MarsRover()
+        {
+            Y_Position = 0,
+            X_Position = 0
+        };
+
+        string direction = "ll";
+        // act
+        sut.Turn(direction);
+        var result = sut.Compas;
+        // assert
+        result.Should().Be(Direction.South);
+    }
+
+    [Fact]
+    public void Turning_Trice_In_Same_Direction_Should_Happen_In_270Degrees()
+    {
+        // arrange 
+        var sut = new MarsRover()
+        {
+            Y_Position = 0,
+            X_Position = 0
+        };
+
+        string direction = "rrr";
+        // act
+        sut.Turn(direction);
+        var result = sut.Compas;
+        // assert
+        result.Should().Be(Direction.West);
+    }
+
+    [Fact]
+    public void Moving_Forward_When_Facing_North_Should_Plus_Y_With_One()
+    {
+        // arrange 
+        var sut = new MarsRover()
+        {
+            Y_Position = 0,
+            X_Position = 0
+        };
+
+        string move = "m";
+        //act
+        sut.Turn(move);
+        int y = sut.Y_Position;
+        int x = sut.X_Position;
+        var direction = sut.Compas;
+        // assert
+        y.Should().Be(1);
+        x.Should().Be(0);
+        direction.Should().Be(Direction.North);
+    }
+
+    [Fact]
+    public void Moving_Forward_When_Facing_East_Should_Plus_X_With_One()
+    {
+        // arrange 
+        var sut = new MarsRover()
+        {
+            Y_Position = 1,
+            X_Position = 1,
+            Compas = Direction.East
+        };
+
+        string move = "m";
+        //act
+        sut.Turn(move);
+        int y = sut.Y_Position;
+        int x = sut.X_Position;
+        var direction = sut.Compas;
+        // assert
+        y.Should().Be(1);
+        x.Should().Be(2);
+        direction.Should().Be(Direction.East);
+    }
 }
