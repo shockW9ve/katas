@@ -122,4 +122,32 @@ public class MovementTests
         x.Should().Be(2);
         direction.Should().Be(Direction.East);
     }
+
+    [Fact]
+    public void Moving_With_Several_Movement_And_Directions_Should_Not_Crash()
+    {
+        // arrange 
+        var sut = new MarsRover()
+        {
+            Y_Position = 2,
+            X_Position = 1,
+        };
+
+        string move = "LMLMLMLMM";
+        // 1,2,n
+        //     0,2,w
+        //     0,1,s
+        //     1,1,e
+        //     1,3,n
+        //act
+        sut.Turn(move);
+        int y = sut.Y_Position;
+        int x = sut.X_Position;
+        var direction = sut.Compas;
+        // assert
+        y.Should().Be(3);
+        x.Should().Be(1);
+        direction.Should().Be(Direction.North);
+    }
+
 }
