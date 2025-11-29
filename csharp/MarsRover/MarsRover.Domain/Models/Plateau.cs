@@ -2,20 +2,26 @@ namespace Space.Models;
 
 public class Plateau
 {
+    Obstacle _obstacle;
     MarsRover _marsRover;
     public int[,] grid;
     public int MarsRoverXCord { get; set; }
     public int MarsRoverYCord { get; set; }
+    public int ObstacleXCord { get; set; }
+    public int ObstacleYCord { get; set; }
     public int UpperXLimit { get; set; }
     public int LowerXLimit { get; set; }
     public int UpperYLimit { get; set; }
     public int LowerYLimit { get; set; }
 
-    public Plateau(int row, int col, MarsRover marsRover)
+    public Plateau(int row, int col, MarsRover marsRover, Obstacle obstacle)
     {
         grid = new int[row, col];
         _marsRover = marsRover;
+        _obstacle = obstacle;
         GridLimits(row, col);
+        ObstacleXCord = _obstacle.XCoordinate;
+        ObstacleYCord = _obstacle.YCoordinate;
     }
 
     private void GridLimits(int row, int col)
@@ -62,6 +68,12 @@ public class Plateau
             for (int j = 0; j < grid.GetLength(1); j++)
             {
                 if (i == MarsRoverYCord && j == MarsRoverXCord)
+                {
+                    Console.Write(" @ ");
+                    continue;
+                }
+
+                if (i == ObstacleYCord && j == ObstacleXCord)
                 {
                     Console.Write(" # ");
                     continue;
