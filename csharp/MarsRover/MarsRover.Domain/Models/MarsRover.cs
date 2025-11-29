@@ -20,11 +20,6 @@ public class MarsRover
             throw new ArgumentException("Invalid input");
         }
 
-        // if (turn.Length < 1)
-        // {
-        //     return;
-        // }
-
         foreach (char c in turn.ToUpper())
         {
             if (c.Equals('M'))
@@ -107,6 +102,6 @@ public class MarsRover
         {
             X_Position--;
         }
-
     }
 }
+

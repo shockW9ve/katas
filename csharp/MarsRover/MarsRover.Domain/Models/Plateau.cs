@@ -6,18 +6,53 @@ public class Plateau
     public int[,] grid;
     public int MarsRoverXCord { get; set; }
     public int MarsRoverYCord { get; set; }
+    public int UpperXLimit { get; set; }
+    public int LowerXLimit { get; set; }
+    public int UpperYLimit { get; set; }
+    public int LowerYLimit { get; set; }
 
     public Plateau(int row, int col, MarsRover marsRover)
     {
         grid = new int[row, col];
         _marsRover = marsRover;
+        GridLimits(row, col);
+    }
+
+    private void GridLimits(int row, int col)
+    {
+        UpperXLimit = col + 1;
+        LowerXLimit = -1;
+        UpperYLimit = row + 1;
+        LowerYLimit = -1;
     }
 
     public void SyncGridWithMarsRover()
     {
         MarsRoverYCord = _marsRover.Y_Position;
         MarsRoverXCord = _marsRover.X_Position;
-        Draw();
+
+        if (MarsRoverXCord >= UpperXLimit)
+        {
+            _marsRover.X_Position = 0;
+            MarsRoverXCord = _marsRover.X_Position;
+        }
+        if (MarsRoverXCord <= LowerXLimit)
+        {
+            _marsRover.X_Position = UpperXLimit - 1;
+            MarsRoverXCord = _marsRover.X_Position;
+        }
+        if (MarsRoverYCord >= UpperYLimit)
+        {
+            _marsRover.Y_Position = 0;
+            MarsRoverYCord = _marsRover.Y_Position;
+        }
+        if (MarsRoverYCord <= LowerYLimit)
+        {
+            _marsRover.Y_Position = UpperYLimit - 1;
+            MarsRoverYCord = _marsRover.Y_Position;
+        }
+
+        // Draw();
     }
 
     public void Draw()

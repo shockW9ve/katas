@@ -1,3 +1,4 @@
+using Space.Helpers;
 using Space.Models;
 using FluentAssertions;
 
@@ -42,5 +43,101 @@ public class PlateauTests
         // assert
         plateau.MarsRoverXCord.Should().Be(marsRover.X_Position);
         plateau.MarsRoverYCord.Should().Be(marsRover.Y_Position);
+    }
+
+    [Fact]
+    public void Hitting_Grid_X_Coordinate_Limit_Should_Return_Mars_Rover_To_Lower_Limit()
+    {
+        // arrange
+        MarsRover marsRover = new MarsRover()
+        {
+            X_Position = 5,
+            Y_Position = 2
+        };
+        int row = 5;
+        int col = 5;
+        string movement = "rm";
+        // act
+        Plateau plateau = new Plateau(row, col, marsRover);
+        marsRover.Turn(movement);
+        plateau.SyncGridWithMarsRover();
+        // assert
+        plateau.MarsRoverXCord.Should().Be(0);
+        plateau.MarsRoverYCord.Should().Be(2);
+        marsRover.X_Position.Should().Be(0);
+        marsRover.Y_Position.Should().Be(2);
+        marsRover.Compas.Should().Be(Direction.East);
+    }
+
+    [Fact]
+    public void Hitting_Grid_X_Coordinate_Lower_Limit_Should_Return_Mars_Rover_To_Upper_Limit()
+    {
+        // arrange
+        MarsRover marsRover = new MarsRover()
+        {
+            X_Position = 0,
+            Y_Position = 2
+        };
+        int row = 5;
+        int col = 5;
+        string movement = "lm";
+        // act
+        Plateau plateau = new Plateau(row, col, marsRover);
+        marsRover.Turn(movement);
+        plateau.SyncGridWithMarsRover();
+        // assert
+        plateau.MarsRoverXCord.Should().Be(5);
+        plateau.MarsRoverYCord.Should().Be(2);
+        marsRover.X_Position.Should().Be(5);
+        marsRover.Y_Position.Should().Be(2);
+        marsRover.Compas.Should().Be(Direction.West);
+    }
+
+    [Fact]
+    public void Hitting_Grid_Y_Coordinate_Limit_Should_Return_Mars_Rover_To_Lower_Limit()
+    {
+        // arrange
+        MarsRover marsRover = new MarsRover()
+        {
+            X_Position = 3,
+            Y_Position = 5
+        };
+        int row = 5;
+        int col = 5;
+        string movement = "m";
+        // act
+        Plateau plateau = new Plateau(row, col, marsRover);
+        marsRover.Turn(movement);
+        plateau.SyncGridWithMarsRover();
+        // assert
+        plateau.MarsRoverXCord.Should().Be(3);
+        plateau.MarsRoverYCord.Should().Be(0);
+        marsRover.X_Position.Should().Be(3);
+        marsRover.Y_Position.Should().Be(0);
+        marsRover.Compas.Should().Be(Direction.North);
+    }
+
+    [Fact]
+    public void Hitting_Grid_Y_Coordinate_Lower_Limit_Should_Return_Mars_Rover_To_Upper_Limit()
+    {
+        // arrange
+        MarsRover marsRover = new MarsRover()
+        {
+            X_Position = 3,
+            Y_Position = 0
+        };
+        int row = 5;
+        int col = 5;
+        string movement = "llm";
+        // act
+        Plateau plateau = new Plateau(row, col, marsRover);
+        marsRover.Turn(movement);
+        plateau.SyncGridWithMarsRover();
+        // assert
+        plateau.MarsRoverXCord.Should().Be(3);
+        plateau.MarsRoverYCord.Should().Be(5);
+        marsRover.X_Position.Should().Be(3);
+        marsRover.Y_Position.Should().Be(5);
+        marsRover.Compas.Should().Be(Direction.South);
     }
 }
