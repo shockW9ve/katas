@@ -1,7 +1,17 @@
+using Space.Interfaces;
+using Space.ValueObjects;
+
 namespace Space.Models;
 
-public class Plateau
+public class Plateau : IMovementPolicy
 {
+
+    public int Height { get; set; }
+    public int Width { get; set; }
+    public IReadOnlySet<Position> Obstacles;
+
+
+
     Obstacle _obstacle;
     MarsRover _marsRover;
     public int[,] grid;

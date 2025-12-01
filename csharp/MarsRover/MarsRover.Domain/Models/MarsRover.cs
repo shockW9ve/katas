@@ -1,4 +1,5 @@
 ﻿using Space.Helpers;
+using Space.ValueObjects;
 
 namespace Space.Models;
 
@@ -6,7 +7,8 @@ public class MarsRover
 {
     public required int X_Position { get; set; }
     public required int Y_Position { get; set; }
-    public Enum Compas { get; set; } = Direction.North;
+    public Direction Compass { get; set; } = Direction.North;
+    public Position postion;
 
     public string Report()
     {
