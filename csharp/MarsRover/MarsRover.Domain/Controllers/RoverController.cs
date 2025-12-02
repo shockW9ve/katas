@@ -1,11 +1,13 @@
 using Space.Helpers;
 using Space.Interfaces;
 using Space.Models;
+using Space.ValueObjects;
 
 namespace Space.Controllers;
 
-public class RoverController : IMovementPolicy
+public class RoverController
 {
+    Position position;
     public void Execute(MarsRover rover, Plateau plateau, string commands)
     {
         // validate chars
@@ -13,7 +15,7 @@ public class RoverController : IMovementPolicy
         // iterate chars
         IterateCommands(rover, commands);
         // apply movement policy
-        TryStep(rover.position, rover.Compass);
+        plateau.TryStep(rover._position, rover.Compass, out position);
         // move
     }
 
@@ -87,10 +89,5 @@ public class RoverController : IMovementPolicy
             }
         }
     }
-
-
-
-    public void TryStep(Position from, Direction direction, out Position to)
-    { }
 }
 
