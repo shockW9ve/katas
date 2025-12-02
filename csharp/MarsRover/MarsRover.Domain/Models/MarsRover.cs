@@ -8,7 +8,7 @@ public class MarsRover
     public required int X_Position { get; set; }
     public required int Y_Position { get; set; }
     public Direction Compass { get; set; } = Direction.North;
-    public Position postion;
+    public Position position;
 
     public string Report()
     {
