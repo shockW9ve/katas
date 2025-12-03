@@ -7,7 +7,7 @@ public class MarsRover
 {
     // public required int X_Position { get; set; }
     // public required int Y_Position { get; set; }
-    public Direction Compass { get; set; } = Direction.North;
+    public Direction Heading { get; private set; } = Direction.North;
     public Position _position;
 
     public MarsRover(int x, int y)
@@ -17,9 +17,71 @@ public class MarsRover
 
     public string Report()
     {
-        return $"{_position.x} {_position.y} {Compass.ToString().Substring(0, 1)}";
+        return $"{_position.x} {_position.y} {Heading}";
     }
 
+    public void TurnRight()
+    {
+        switch (Heading)
+        {
+            case Direction.North:
+                Heading = Direction.East;
+                break;
+            case Direction.East:
+                Heading = Direction.South;
+                break;
+            case Direction.South:
+                Heading = Direction.West;
+                break;
+            case Direction.West:
+                Heading = Direction.North;
+                break;
+            default:
+                throw new ArgumentException("Use a compass to move");
+        }
+    }
+
+    public void TurnLeft()
+    {
+        switch (Heading)
+        {
+            case Direction.North:
+                Heading = Direction.West;
+                break;
+            case Direction.East:
+                Heading = Direction.North;
+                break;
+            case Direction.South:
+                Heading = Direction.East;
+                break;
+            case Direction.West:
+                Heading = Direction.South;
+                break;
+            default:
+                throw new ArgumentException("Use a compass to move");
+        }
+    }
+
+    public void MoveForward()
+    {
+        switch (Heading)
+        {
+            case Direction.North:
+                _position.y++;
+                break;
+            case Direction.East:
+                _position.x++;
+                break;
+            case Direction.South:
+                _position.y--;
+                break;
+            case Direction.West:
+                _position.x--;
+                break;
+            default:
+                throw new ArgumentException("Use a compass to move");
+        }
+    }
     //     public void Turn(string turn)
     //     {
     //         if (turn is null)

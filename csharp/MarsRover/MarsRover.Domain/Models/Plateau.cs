@@ -9,11 +9,33 @@ public class Plateau : IMovementPolicy
 
     public int Height { get; set; }
     public int Width { get; set; }
-    public IReadOnlySet<Position> Obstacles;
+    public IReadOnlySet<Position> Obstacles = new HashSet<Position>();
+
+    public Plateau(int x, int y)
+    {
+        Obstacle obstacle = new Obstacle(y, x);
+    }
 
 
     public void TryStep(Position from, Direction direction, out Position to)
-    { }
+    {
+
+        switch (direction)
+        {
+            case Direction.North:
+                (to.x, to.y) = (from.x, from.y);
+                break;
+            default:
+                throw new InvalidOperationException("Somehow you are moving out of bounds");
+
+        }
+    }
+
+    public bool IsBlocked(Position position)
+    {
+
+        return true;
+    }
 
     // Obstacle _obstacle;
     // MarsRover _marsRover;

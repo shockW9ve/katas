@@ -1,6 +1,5 @@
 namespace Space.Models;
 
-
 public class Obstacle
 {
     public int XCoordinate { get; set; }
