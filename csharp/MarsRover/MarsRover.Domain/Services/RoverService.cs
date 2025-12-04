@@ -10,15 +10,22 @@ public class RoverService
     Position position;
     public void Execute(MarsRover rover, Plateau plateau, string commands)
     {
+        string caps = commands.ToUpper();
         // validate chars
-        ValidateCommands(commands);
+        ValidateCommands(caps);
         // iterate chars
-        IterateCommands(rover, commands);
+        IterateCommands(rover, caps);
         // apply movement policy
-        position = new Position(position.x, position.y);
         plateau.TryStep(rover._position, rover.Heading, out position);
 
+        bool IsBlocked = plateau.IsBlocked(position);
         // move
+        if (IsBlocked)
+        {
+            return;
+        }
+
+        rover.MoveForward();
     }
 
     private void ValidateCommands(string commands)
@@ -32,7 +39,7 @@ public class RoverService
 
     private void IterateCommands(MarsRover rover, string commands)
     {
-        foreach (char c in commands.ToUpper())
+        foreach (char c in commands)
         {
             if (c.Equals('M'))
             {

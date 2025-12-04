@@ -9,32 +9,45 @@ public class Plateau : IMovementPolicy
 
     public int Height { get; set; }
     public int Width { get; set; }
-    public IReadOnlySet<Position> Obstacles = new HashSet<Position>();
+    public IReadOnlySet<Obstacle> Obstacles;
 
     public Plateau(int x, int y)
     {
         Obstacle obstacle = new Obstacle(y, x);
+        Obstacles = new HashSet<Obstacle>() { obstacle };
     }
 
 
     public void TryStep(Position from, Direction direction, out Position to)
     {
-
         switch (direction)
         {
             case Direction.North:
-                (to.x, to.y) = (from.x, from.y);
+                to = new Position(from.x, from.y + 1);
+                break;
+            case Direction.East:
+                to = new Position(from.x + 1, from.y);
+                break;
+            case Direction.South:
+                to = new Position(from.x, from.y - 1);
+                break;
+            case Direction.West:
+                to = new Position(from.x - 1, from.y);
                 break;
             default:
                 throw new InvalidOperationException("Somehow you are moving out of bounds");
-
         }
     }
 
     public bool IsBlocked(Position position)
     {
+        Obstacle obstacle = new Obstacle(position.y, position.x);
+        if (Obstacles.Contains(obstacle))
+        {
+            return true;
+        }
 
-        return true;
+        return false;
     }
 
     // Obstacle _obstacle;
