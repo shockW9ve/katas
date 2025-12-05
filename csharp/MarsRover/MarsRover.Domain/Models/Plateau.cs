@@ -1,6 +1,5 @@
 using Space.Helpers;
 using Space.Interfaces;
-using Space.ValueObjects;
 
 namespace Space.Models;
 
@@ -9,12 +8,12 @@ public class Plateau : IMovementPolicy
 
     public int Height { get; set; }
     public int Width { get; set; }
-    public IReadOnlySet<Obstacle> Obstacles;
+    public IReadOnlySet<Position> Obstacles;
 
     public Plateau(int x, int y)
     {
-        Obstacle obstacle = new Obstacle(y, x);
-        Obstacles = new HashSet<Obstacle>() { obstacle };
+        Position obstacle = new Position(y, x);
+        Obstacles = new HashSet<Position>() { obstacle };
     }
 
 
@@ -41,8 +40,7 @@ public class Plateau : IMovementPolicy
 
     public bool IsBlocked(Position position)
     {
-        Obstacle obstacle = new Obstacle(position.y, position.x);
-        if (Obstacles.Contains(obstacle))
+        if (Obstacles.Contains(position))
         {
             return true;
         }

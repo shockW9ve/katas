@@ -1,5 +1,5 @@
 using Space.Helpers;
-using Space.ValueObjects;
+using Space.Models;
 
 namespace Space.Interfaces;
 

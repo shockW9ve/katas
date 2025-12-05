@@ -1,18 +1,15 @@
 ﻿using Space.Helpers;
-using Space.ValueObjects;
 
 namespace Space.Models;
 
 public class MarsRover
 {
-    // public required int X_Position { get; set; }
-    // public required int Y_Position { get; set; }
     public Direction Heading { get; private set; } = Direction.North;
-    public Position _position;
+    public readonly Position Position { get; private set; }
 
     public MarsRover(int x, int y)
     {
-        _position = new Position(x, y);
+        Position = new Position(x, y);
     }
 
     public string Report()

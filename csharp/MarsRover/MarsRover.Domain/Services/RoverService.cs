@@ -1,40 +1,40 @@
-using Space.Helpers;
-using Space.Interfaces;
 using Space.Models;
-using Space.ValueObjects;
 
 namespace Space.Services;
 
-public class RoverService
+public sealed class RoverService
 {
     Position position;
     public void Execute(MarsRover rover, Plateau plateau, string commands)
     {
         string caps = commands.ToUpper();
         // validate chars
-        ValidateCommands(caps);
-        // iterate chars
-        IterateCommands(rover, caps);
+        bool isValid = IsValidCommands(caps);
         // apply movement policy
         plateau.TryStep(rover._position, rover.Heading, out position);
-
-        bool IsBlocked = plateau.IsBlocked(position);
-        // move
-        if (IsBlocked)
+        bool isBlocked = plateau.IsBlocked(position);
+        if (isBlocked)
         {
             return;
         }
-
-        rover.MoveForward();
+        // iterate chars
+        // move
+        IterateCommands(rover, caps);
     }
 
-    private void ValidateCommands(string commands)
+    public MoveOutCome Execute(MarsRover rover, IMovementPolicy policy, string commands)
+    {
+        // TODO
+    }
+
+    private bool IsValidCommands(string commands)
     {
         bool isValid = commands.Contains("LRM");
         if (isValid is false)
         {
             throw new ArgumentException("Not valid input");
         }
+        return true;
     }
 
     private void IterateCommands(MarsRover rover, string commands)
