@@ -10,32 +10,44 @@ public class Plateau : IMovementPolicy
     public int Width { get; set; }
     public IReadOnlySet<Position> Obstacles;
 
-    public Plateau(int x, int y)
+    public Plateau(int height, int width, IReadOnlySet<Position> obstacles)
     {
-        Position obstacle = new Position(y, x);
-        Obstacles = new HashSet<Position>() { obstacle };
+        Height = height;
+        Width = width;
+        Obstacles = obstacles;
     }
 
-
-    public void TryStep(Position from, Direction direction, out Position to)
+    public bool TryStep(Position from, Direction direction, out Position to)
     {
-        switch (direction)
+
+        var (dx, dy) = DirectionVectors.Delta(direction);
+
+        to = new Position(dx, dy);
+
+        // switch (direction)
+        // {
+        //     case Direction.North:
+        //         to = new Position(from.X, from.Y + 1);
+        //         break;
+        //     case Direction.East:
+        //         to = new Position(from.X + 1, from.Y);
+        //         break;
+        //     case Direction.South:
+        //         to = new Position(from.X, from.Y - 1);
+        //         break;
+        //     case Direction.West:
+        //         to = new Position(from.X - 1, from.Y);
+        //         break;
+        //     default:
+        //         throw new InvalidOperationException("Somehow you are moving out of bounds");
+        // }
+
+        if (to.X > Width || to.Y > Height)
         {
-            case Direction.North:
-                to = new Position(from.x, from.y + 1);
-                break;
-            case Direction.East:
-                to = new Position(from.x + 1, from.y);
-                break;
-            case Direction.South:
-                to = new Position(from.x, from.y - 1);
-                break;
-            case Direction.West:
-                to = new Position(from.x - 1, from.y);
-                break;
-            default:
-                throw new InvalidOperationException("Somehow you are moving out of bounds");
+            return false;
         }
+
+        return true;
     }
 
     public bool IsBlocked(Position position)

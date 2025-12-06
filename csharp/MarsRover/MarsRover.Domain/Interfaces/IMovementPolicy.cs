@@ -5,5 +5,6 @@ namespace Space.Interfaces;
 
 public interface IMovementPolicy
 {
-    void TryStep(Position from, Direction direction, out Position to);
+    bool TryStep(Position from, Direction direction, out Position to);
+    bool IsBlocked(Position position);
 }
