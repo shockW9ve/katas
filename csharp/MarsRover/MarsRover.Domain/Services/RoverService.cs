@@ -18,28 +18,24 @@ public sealed class RoverService
             return;
         }
         // apply movement policy
-        var isOutOfBound = plateau.TryStep(rover.Position, rover.Heading, out position);
-        if (isOutOfBound)
-        {
-            rover.RoverStatus(MoveStatus.OutOfBounds);
-        }
-
-        bool isBlocked = plateau.IsBlocked(position);
-        if (isBlocked)
-        {
-            rover.RoverStatus(MoveStatus.Blocked);
-            return;
-        }
+        // Execute(rover, plateau, caps);
+        // var isOutOfBound = plateau.TryStep(rover.Position, rover.Heading, out position);
+        // if (isOutOfBound)
+        // {
+        //     rover.RoverStatus(MoveStatus.OutOfBounds);
+        //     return;
+        // }
+        //
+        // bool isBlocked = plateau.IsBlocked(position);
+        // if (isBlocked)
+        // {
+        //     rover.RoverStatus(MoveStatus.Blocked);
+        //     return;
+        // }
         // iterate chars
         // move
-        IterateCommands(rover, caps, position);
-        rover.RoverStatus(MoveStatus.Completed);
+        IterateCommands(rover, plateau, caps, position);
     }
-
-    // public MoveOutCome Execute(MarsRover rover, IMovementPolicy policy, string commands)
-    // {
-    //     policy.TryStep()
-    // }
 
     private bool IsValidCommands(string commands)
     {
@@ -50,16 +46,37 @@ public sealed class RoverService
             {
                 isValid = true;
             }
+
+            isValid = false;
         }
         return isValid;
     }
 
-    private void IterateCommands(MarsRover rover, string commands, Position position)
+    private void IterateCommands(MarsRover rover, IMovementPolicy policy, string commands, Position position)
     {
+        uint incedent = 0;
         foreach (char c in commands)
         {
             if (c.Equals('M'))
             {
+                // rover.MoveForward(position);
+
+                var isOutOfBound = policy.TryStep(rover.Position, rover.Heading, out position);
+                if (isOutOfBound)
+                {
+                    rover.RoverStatus(MoveStatus.OutOfBounds);
+                    incedent++;
+                    break;
+                }
+
+                bool isBlocked = policy.IsBlocked(position);
+                if (isBlocked)
+                {
+                    rover.RoverStatus(MoveStatus.Blocked);
+                    incedent++;
+                    break;
+                }
+
                 rover.MoveForward(position);
             }
 
@@ -72,6 +89,11 @@ public sealed class RoverService
             {
                 rover.TurnRight();
             }
+        }
+
+        if (incedent < 0)
+        {
+            rover.RoverStatus(MoveStatus.Completed);
         }
     }
 }

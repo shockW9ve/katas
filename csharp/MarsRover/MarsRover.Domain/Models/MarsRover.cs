@@ -30,8 +30,10 @@ public class MarsRover
 
     public void MoveForward(Position position)
     {
-        var (dx, dy) = DirectionVectors.Delta(Heading);
-        Position = Position with { X = Position.X + dx, Y = Position.Y + dy };
+        // var (dx, dy) = DirectionVectors.Delta(Heading);
+        // Position = Position with { X = Position.X + dx, Y = Position.Y + dy };
+
+        Position = Position with { X = position.X, Y = position.Y };
     }
 
     public void RoverStatus(MoveStatus status)
