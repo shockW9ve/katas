@@ -7,14 +7,16 @@ namespace Space.Services;
 public sealed class RoverService
 {
     Position position;
+
     public void Execute(MarsRover rover, Plateau plateau, string commands)
     {
-        string caps = commands.ToUpper();
+        string caps = commands.Trim().ToUpper();
         // validate chars
         bool isValid = IsValidCommands(caps);
         if (isValid is false)
         {
-            rover.RoverStatus(MoveStatus.InvalidCommand);
+            // rover.RoverStatus(MoveStatus.InvalidCommand);
+            MoveOutcome moveOutcome = new MoveOutcome(MoveStatus.InvalidCommand);
             return;
         }
         // apply movement policy
@@ -34,50 +36,76 @@ public sealed class RoverService
         // }
         // iterate chars
         // move
+
         IterateCommands(rover, plateau, caps, position);
+    }
+
+    public MoveOutcome TryStep(IMovementPolicy policy, MarsRover rover)
+    {
+        var isOutOfBound = policy.TryStep(rover.Position, rover.Heading, out position);
+
+        if (isOutOfBound)
+        {
+            return new MoveOutcome(MoveStatus.OutOfBounds, position);
+        }
+
+
+        bool isBlocked = policy.IsBlocked(position);
+        if (isBlocked)
+        {
+            return new MoveOutcome(MoveStatus.Blocked, position);
+        }
+
+        rover.MoveForward(position);
+
+        return new MoveOutcome(MoveStatus.Completed, position);
     }
 
     private bool IsValidCommands(string commands)
     {
-        bool isValid = false;
+        bool isValid = true;
         foreach (char c in commands)
         {
-            if (c.Equals('L') || c.Equals('R') || c.Equals('M'))
+            if (c.Equals('L') is false || c.Equals('R') is false || c.Equals('M') is false)
             {
-                isValid = true;
+                isValid = false;
+                return isValid;
             }
-
-            isValid = false;
         }
         return isValid;
     }
 
     private void IterateCommands(MarsRover rover, IMovementPolicy policy, string commands, Position position)
     {
-        uint incedent = 0;
+        // uint incedent = 0;
         foreach (char c in commands)
         {
             if (c.Equals('M'))
             {
+                MoveOutcome outcome = TryStep(policy, rover);
+                if (outcome.Status != MoveStatus.Completed)
+                {
+                    break;
+                }
                 // rover.MoveForward(position);
 
-                var isOutOfBound = policy.TryStep(rover.Position, rover.Heading, out position);
-                if (isOutOfBound)
-                {
-                    rover.RoverStatus(MoveStatus.OutOfBounds);
-                    incedent++;
-                    break;
-                }
-
-                bool isBlocked = policy.IsBlocked(position);
-                if (isBlocked)
-                {
-                    rover.RoverStatus(MoveStatus.Blocked);
-                    incedent++;
-                    break;
-                }
-
-                rover.MoveForward(position);
+                // var isOutOfBound = policy.TryStep(rover.Position, rover.Heading, out position);
+                // if (isOutOfBound)
+                // {
+                //     rover.RoverStatus(MoveStatus.OutOfBounds);
+                //     incedent++;
+                //     break;
+                // }
+                //
+                // bool isBlocked = policy.IsBlocked(position);
+                // if (isBlocked)
+                // {
+                //     rover.RoverStatus(MoveStatus.Blocked);
+                //     incedent++;
+                //     break;
+                // }
+                //
+                // rover.MoveForward(position);
             }
 
             if (c.Equals('L'))
@@ -91,10 +119,9 @@ public sealed class RoverService
             }
         }
 
-        if (incedent < 0)
-        {
-            rover.RoverStatus(MoveStatus.Completed);
-        }
+        // if (incedent < 0)
+        // {
+        //     rover.RoverStatus(MoveStatus.Completed);
+        // }
     }
 }
-
