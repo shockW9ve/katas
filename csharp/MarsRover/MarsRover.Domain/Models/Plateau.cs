@@ -19,12 +19,11 @@ public class Plateau : IMovementPolicy
 
     public bool TryStep(Position from, Direction direction, out Position to)
     {
-
         var (dx, dy) = DirectionVectors.Delta(direction);
 
         var candidate = (from.X + dx, from.Y + dy);
 
-        if (candidate.Item1 > Width || candidate.Item1 < 0 || candidate.Item2 > Height || candidate.Item2 < 0)
+        if (candidate.Item1 >= Width || candidate.Item1 < 0 || candidate.Item2 >= Height || candidate.Item2 < 0)
         {
             to = from;
             return false;
@@ -44,7 +43,7 @@ public class Plateau : IMovementPolicy
 
         return false;
     }
-    //
+
     // public void Draw()
     // {
     //     for (int i = 0; i < grid.GetLength(0); i++)

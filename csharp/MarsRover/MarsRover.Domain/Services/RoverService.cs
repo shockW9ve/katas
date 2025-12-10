@@ -6,41 +6,26 @@ namespace Space.Services;
 
 public sealed class RoverService
 {
-    Position position;
+    private Position position;
+    private List<MoveOutcome> outcomes = new List<MoveOutcome>();
 
-    public void Execute(MarsRover rover, Plateau plateau, string commands)
+    public List<MoveOutcome> Execute(MarsRover rover, Plateau plateau, string commands)
     {
         string caps = commands.Trim().ToUpper();
-        // validate chars
+        // validate commands
         bool isValid = IsValidCommands(caps);
         if (isValid is false)
         {
-            // rover.RoverStatus(MoveStatus.InvalidCommand);
-            MoveOutcome moveOutcome = new MoveOutcome(MoveStatus.InvalidCommand);
-            return;
+            outcomes.Add(new MoveOutcome(MoveStatus.InvalidCommand));
+            return outcomes;
         }
-        // apply movement policy
-        // Execute(rover, plateau, caps);
-        // var isOutOfBound = plateau.TryStep(rover.Position, rover.Heading, out position);
-        // if (isOutOfBound)
-        // {
-        //     rover.RoverStatus(MoveStatus.OutOfBounds);
-        //     return;
-        // }
-        //
-        // bool isBlocked = plateau.IsBlocked(position);
-        // if (isBlocked)
-        // {
-        //     rover.RoverStatus(MoveStatus.Blocked);
-        //     return;
-        // }
-        // iterate chars
-        // move
-
+        // iterate commands & move
         IterateCommands(rover, plateau, caps, position);
+
+        return outcomes;
     }
 
-    public MoveOutcome TryStep(IMovementPolicy policy, MarsRover rover)
+    private MoveOutcome TryStep(IMovementPolicy policy, MarsRover rover)
     {
         var isOutOfBound = policy.TryStep(rover.Position, rover.Heading, out position);
 
@@ -63,49 +48,29 @@ public sealed class RoverService
 
     private bool IsValidCommands(string commands)
     {
-        bool isValid = true;
         foreach (char c in commands)
         {
-            if (c.Equals('L') is false || c.Equals('R') is false || c.Equals('M') is false)
+            if (c.Equals('L') is false && c.Equals('R') is false && c.Equals('M') is false)
             {
-                isValid = false;
-                return isValid;
+                return false;
             }
         }
-        return isValid;
+        return true;
     }
 
     private void IterateCommands(MarsRover rover, IMovementPolicy policy, string commands, Position position)
     {
-        // uint incedent = 0;
         foreach (char c in commands)
         {
             if (c.Equals('M'))
             {
                 MoveOutcome outcome = TryStep(policy, rover);
+                outcomes.Add(outcome);
+
                 if (outcome.Status != MoveStatus.Completed)
                 {
                     break;
                 }
-                // rover.MoveForward(position);
-
-                // var isOutOfBound = policy.TryStep(rover.Position, rover.Heading, out position);
-                // if (isOutOfBound)
-                // {
-                //     rover.RoverStatus(MoveStatus.OutOfBounds);
-                //     incedent++;
-                //     break;
-                // }
-                //
-                // bool isBlocked = policy.IsBlocked(position);
-                // if (isBlocked)
-                // {
-                //     rover.RoverStatus(MoveStatus.Blocked);
-                //     incedent++;
-                //     break;
-                // }
-                //
-                // rover.MoveForward(position);
             }
 
             if (c.Equals('L'))
@@ -118,10 +83,5 @@ public sealed class RoverService
                 rover.TurnRight();
             }
         }
-
-        // if (incedent < 0)
-        // {
-        //     rover.RoverStatus(MoveStatus.Completed);
-        // }
     }
 }
