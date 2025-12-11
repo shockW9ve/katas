@@ -5,10 +5,9 @@ namespace Space.Models;
 
 public class Plateau : IMovementPolicy
 {
-
-    public int Height { get; set; }
-    public int Width { get; set; }
-    public IReadOnlySet<Position> Obstacles;
+    public int Height { get; }
+    public int Width { get; }
+    public IReadOnlySet<Position> Obstacles { get; }
 
     public Plateau(int height, int width, IReadOnlySet<Position> obstacles)
     {

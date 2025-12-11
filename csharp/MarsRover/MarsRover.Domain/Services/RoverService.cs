@@ -6,44 +6,19 @@ namespace Space.Services;
 
 public sealed class RoverService
 {
-    private Position position;
-    private List<MoveOutcome> outcomes = new List<MoveOutcome>();
-
-    public List<MoveOutcome> Execute(MarsRover rover, Plateau plateau, string commands)
+    public MoveOutcome Execute(MarsRover rover, Plateau plateau, string commands)
     {
+        Position next = rover.Position;
         string caps = commands.Trim().ToUpper();
         // validate commands
         bool isValid = IsValidCommands(caps);
         if (isValid is false)
         {
-            outcomes.Add(new MoveOutcome(MoveStatus.InvalidCommand));
-            return outcomes;
+            return new MoveOutcome(MoveStatus.InvalidCommand);
         }
         // iterate commands & move
-        IterateCommands(rover, plateau, caps, position);
-
-        return outcomes;
-    }
-
-    private MoveOutcome TryStep(IMovementPolicy policy, MarsRover rover)
-    {
-        var isOutOfBound = policy.TryStep(rover.Position, rover.Heading, out position);
-
-        if (isOutOfBound)
-        {
-            return new MoveOutcome(MoveStatus.OutOfBounds, position);
-        }
-
-
-        bool isBlocked = policy.IsBlocked(position);
-        if (isBlocked)
-        {
-            return new MoveOutcome(MoveStatus.Blocked, position);
-        }
-
-        rover.MoveForward(position);
-
-        return new MoveOutcome(MoveStatus.Completed, position);
+        MoveOutcome outcome = IterateCommands(rover, plateau, caps, next);
+        return outcome;
     }
 
     private bool IsValidCommands(string commands)
@@ -58,30 +33,45 @@ public sealed class RoverService
         return true;
     }
 
-    private void IterateCommands(MarsRover rover, IMovementPolicy policy, string commands, Position position)
+    private MoveOutcome IterateCommands(
+        MarsRover rover,
+        IMovementPolicy policy,
+        string commands,
+        Position position)
     {
         foreach (char c in commands)
         {
-            if (c.Equals('M'))
+            switch (c)
             {
-                MoveOutcome outcome = TryStep(policy, rover);
-                outcomes.Add(outcome);
-
-                if (outcome.Status != MoveStatus.Completed)
-                {
+                case 'L':
+                    rover.TurnLeft();
                     break;
-                }
+                case 'R':
+                    rover.TurnRight();
+                    break;
+                case 'M':
+                    Position next;
+                    var canStep = policy.TryStep(rover.Position, rover.Heading, out next);
+
+                    if (canStep is false)
+                    {
+                        return new MoveOutcome(MoveStatus.OutOfBounds, next);
+                    }
+
+
+                    bool isBlocked = policy.IsBlocked(next);
+                    if (isBlocked)
+                    {
+                        return new MoveOutcome(MoveStatus.Blocked, next);
+                    }
+
+                    rover.AdvanceTo(next);
+                    break;
+                default:
+                    break;
             }
 
-            if (c.Equals('L'))
-            {
-                rover.TurnLeft();
-            }
-
-            if (c.Equals('R'))
-            {
-                rover.TurnRight();
-            }
+            return new MoveOutcome(MoveStatus.Completed, position);
         }
     }
 }

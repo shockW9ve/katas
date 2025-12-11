@@ -28,8 +28,8 @@ public class MarsRover
         Heading = DirectionExtension.RotateLeft(Heading);
     }
 
-    public void MoveForward(Position position)
+    public void AdvanceTo(Position next)
     {
-        Position = Position with { X = position.X, Y = position.Y };
+        Position = Position with { X = next.X, Y = next.Y };
     }
 }
