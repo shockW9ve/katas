@@ -14,6 +14,6 @@ public class Program
         MarsRover rover = new MarsRover(x: x, y: y);
         RoverService service = new RoverService();
         string commands = "lm";
-        var result = service.Execute(rover: rover, plateau: plateau, commands: commands);
+        var result = service.Execute(rover: rover, policy: plateau, commands: commands);
     }
 }

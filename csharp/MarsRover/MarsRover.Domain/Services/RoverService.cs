@@ -6,26 +6,23 @@ namespace Space.Services;
 
 public sealed class RoverService
 {
-    public MoveOutcome Execute(MarsRover rover, Plateau plateau, string commands)
+    public MoveOutcome Execute(MarsRover rover, IMovementPolicy policy, string commands)
     {
-        Position next = rover.Position;
-        string caps = commands.Trim().ToUpper();
+        string caps = commands?.Trim().ToUpperInvariant() ?? string.Empty;
         // validate commands
-        bool isValid = IsValidCommands(caps);
-        if (isValid is false)
+        if (IsValidCommands(caps) is false)
         {
             return new MoveOutcome(MoveStatus.InvalidCommand);
         }
         // iterate commands & move
-        MoveOutcome outcome = IterateCommands(rover, plateau, caps, next);
-        return outcome;
+        return IterateCommands(rover, policy, caps);
     }
 
     private bool IsValidCommands(string commands)
     {
         foreach (char c in commands)
         {
-            if (c.Equals('L') is false && c.Equals('R') is false && c.Equals('M') is false)
+            if (c != 'L' && c != 'R' && c != 'M')
             {
                 return false;
             }
@@ -33,11 +30,7 @@ public sealed class RoverService
         return true;
     }
 
-    private MoveOutcome IterateCommands(
-        MarsRover rover,
-        IMovementPolicy policy,
-        string commands,
-        Position position)
+    private MoveOutcome IterateCommands(MarsRover rover, IMovementPolicy policy, string commands)
     {
         foreach (char c in commands)
         {
@@ -45,9 +38,11 @@ public sealed class RoverService
             {
                 case 'L':
                     rover.TurnLeft();
+
                     break;
                 case 'R':
                     rover.TurnRight();
+
                     break;
                 case 'M':
                     Position next;
@@ -55,9 +50,8 @@ public sealed class RoverService
 
                     if (canStep is false)
                     {
-                        return new MoveOutcome(MoveStatus.OutOfBounds, next);
+                        return new MoveOutcome(MoveStatus.OutOfBounds, rover.Position);
                     }
-
 
                     bool isBlocked = policy.IsBlocked(next);
                     if (isBlocked)
@@ -67,11 +61,8 @@ public sealed class RoverService
 
                     rover.AdvanceTo(next);
                     break;
-                default:
-                    break;
             }
-
-            return new MoveOutcome(MoveStatus.Completed, position);
         }
+        return new MoveOutcome(MoveStatus.Completed, rover.Position);
     }
 }
