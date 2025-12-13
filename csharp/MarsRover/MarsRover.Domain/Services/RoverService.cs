@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Space.Interfaces;
 using Space.Helpers;
 using Space.Models;
@@ -8,14 +9,14 @@ public sealed class RoverService
 {
     public MoveOutcome Execute(MarsRover rover, IMovementPolicy policy, string commands)
     {
-        string caps = commands?.Trim().ToUpperInvariant() ?? string.Empty;
+        string commandsToUpperCase = commands?.Trim().ToUpperInvariant() ?? string.Empty;
         // validate commands
-        if (IsValidCommands(caps) is false)
+        if (!IsValidCommands(commandsToUpperCase))
         {
             return new MoveOutcome(MoveStatus.InvalidCommand);
         }
         // iterate commands & move
-        return IterateCommands(rover, policy, caps);
+        return IterateCommands(rover, policy, commandsToUpperCase);
     }
 
     private bool IsValidCommands(string commands)
@@ -48,7 +49,7 @@ public sealed class RoverService
                     Position next;
                     var canStep = policy.TryStep(rover.Position, rover.Heading, out next);
 
-                    if (canStep is false)
+                    if (!canStep)
                     {
                         return new MoveOutcome(MoveStatus.OutOfBounds, rover.Position);
                     }
@@ -60,6 +61,9 @@ public sealed class RoverService
                     }
 
                     rover.AdvanceTo(next);
+                    break;
+                default:
+                    Debug.Assert(rover != null, "MarsRover is missing");
                     break;
             }
         }

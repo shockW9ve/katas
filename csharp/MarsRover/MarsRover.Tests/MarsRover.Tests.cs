@@ -4,7 +4,7 @@ using FluentAssertions;
 
 namespace Space.Tests;
 
-public class MovementTests
+public class MarsRoverTests
 {
     [Fact]
     public void Coordinates_Should_Return_Starting_Point()
@@ -133,5 +133,4 @@ public class MovementTests
     //     x.Should().Be(1);
     //     direction.Should().Be(Direction.North);
     // }
-
 }
