@@ -6,24 +6,41 @@ namespace Space.Tests;
 
 public class PlateauTests
 {
-    // [Fact]
-    // public void Creating_Plateau_Should_Create_Grid()
-    // {
-    //     // arrange
-    //     int row = 5;
-    //     int col = 5;
-    //     MarsRover marsRover = new MarsRover()
-    //     {
-    //         X_Position = 0,
-    //         Y_Position = 0
-    //     };
-    //     var sut = new Plateau(row, col, marsRover);
-    //     // act
-    //
-    //     // assert
-    //     sut.grid.GetLength(0).Should().Be(5);
-    //     sut.grid.GetLength(1).Should().Be(5);
-    // }
+    [Fact]
+    public void Creating_Plateau_Should_Create_Grid()
+    {
+        // arrange
+        int x = 5;
+        int y = 5;
+        IReadOnlySet<Position> obstacles = new HashSet<Position>();
+        var sut = new Plateau(x, y, obstacles);
+        // act
+        int xResult = sut.Width;
+        int yResult = sut.Height;
+        // assert
+        xResult.Should().Be(x);
+        yResult.Should().Be(y);
+    }
+
+    [Fact]
+    public void Moving_To_An_Obstacle_Should_Block_Movement()
+    {
+        // arrange
+        int x = 5;
+        int y = 5;
+        int xObstacle = 3;
+        int yObstacle = 3;
+        Position obstacle = new Position(xObstacle, yObstacle);
+        IReadOnlySet<Position> obstacles = new HashSet<Position>() { obstacle };
+        var sut = new Plateau(x, y, obstacles);
+        int xPosition = 3;
+        int yPosition = 3;
+        Position position = new Position(xPosition, yPosition);
+        // act
+        var result = sut.IsBlocked(position);
+        // assert
+        result.Should().BeTrue();
+    }
     //
     // [Fact]
     // public void Creating_Plateau_Should_Sync_Grid_With_Mars_Rover_Coordinates()
