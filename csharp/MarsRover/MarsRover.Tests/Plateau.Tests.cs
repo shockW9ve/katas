@@ -41,6 +41,30 @@ public class PlateauTests
         // assert
         result.Should().BeTrue();
     }
+
+    [Fact]
+    public void Moving_To_A_Border_Should_Return_Starting_Position()
+    {
+        // arrange
+        int x = 5;
+        int y = 5;
+        int xObstacle = 3;
+        int yObstacle = 3;
+        Position obstacle = new Position(xObstacle, yObstacle);
+        IReadOnlySet<Position> obstacles = new HashSet<Position>() { obstacle };
+        var sut = new Plateau(x, y, obstacles);
+        int xFrom = 4;
+        int yFrom = 4;
+        Position from = new Position(xFrom, yFrom);
+        Position to;
+        // act
+        var result = sut.TryStep(from, Direction.North, out to);
+        // assert
+        result.Should().BeFalse();
+        to.X.Should().Be(from.X);
+        to.Y.Should().Be(from.Y);
+    }
+
     //
     // [Fact]
     // public void Creating_Plateau_Should_Sync_Grid_With_Mars_Rover_Coordinates()
