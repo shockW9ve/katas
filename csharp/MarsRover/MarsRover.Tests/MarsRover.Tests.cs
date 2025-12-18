@@ -51,7 +51,8 @@ public class MarsRoverTests
         // act
         sut.AdvanceTo(to);
         // assert
-        sut.Position.X.Should().Be(1);
-        sut.Position.Y.Should().Be(0);
+        // sut.Position.X.Should().Be(1);
+        // sut.Position.Y.Should().Be(0);
+        sut.Position.Should().Be(new Position(1, 0));
     }
 }

@@ -43,6 +43,7 @@ public class RoverServiceTests
         var result = service.Execute(rover, plateau, commands);
         // assert
         result.Status.Should().Be(MoveStatus.Completed);
+        rover.Heading.Should().Be(Direction.North);
     }
 
     [Fact]
@@ -114,4 +115,26 @@ public class RoverServiceTests
         rover.Position.Y.Should().Be(3);
     }
 
+    [Fact]
+    public void Empty_String_Should_Return_Completed()
+    {
+        // arrange
+        RoverService service = new RoverService();
+        int x = 0;
+        int y = 3;
+        MarsRover rover = new MarsRover(x, y);
+        int height = 5;
+        int width = 5;
+        IReadOnlySet<Position> obstacles = new HashSet<Position>();
+        Plateau plateau = new Plateau(height, width, obstacles);
+        string commands = "";
+        // act
+        var result = service.Execute(rover, plateau, commands);
+        // assert
+        result.Status.Should().Be(MoveStatus.Completed);
+        result.BlockedAt.Should().Be(new Position(0, 3));
+        rover.Heading.Should().Be(Direction.North);
+        // rover.Position.X.Should().Be(2);
+        // rover.Position.Y.Should().Be(3);
+    }
 }

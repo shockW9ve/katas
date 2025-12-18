@@ -7,7 +7,7 @@ namespace Space.Tests;
 public class PlateauTests
 {
     [Fact]
-    public void Creating_Plateau_Should_Create_Grid()
+    public void Creating_Plateau_Sets_Dimension()
     {
         // arrange
         int x = 5;
