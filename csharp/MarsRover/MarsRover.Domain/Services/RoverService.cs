@@ -9,27 +9,43 @@ public sealed class RoverService
 {
     public MoveOutcome Execute(MarsRover rover, IMovementPolicy policy, string commands)
     {
-        string commandsToUpperCase = commands?.Trim().ToUpperInvariant() ?? string.Empty;
+        // string commandsToUpperCase = commands?.Trim().ToUpperInvariant() ?? string.Empty;
+        string normalized = NormalizeCommands(commands);
         // validate commands
-        if (!IsValidCommands(commandsToUpperCase))
+        if (!IsValidCommands(normalized))
         {
             return new MoveOutcome(MoveStatus.InvalidCommand);
         }
         // iterate commands & move
-        return IterateCommands(rover, policy, commandsToUpperCase);
+        return IterateCommands(rover, policy, normalized);
+    }
+
+    private string NormalizeCommands(string? commands)
+    {
+        if (string.IsNullOrWhiteSpace(commands)) return string.Empty;
+
+        // remove ALL whitespace (spaces, tabs, \n, \r, etc.) and uppercase
+        return new string(
+            commands.Where(c => !char.IsWhiteSpace(c))
+                    .Select(char.ToUpperInvariant)
+                    .ToArray()
+        );
     }
 
     private bool IsValidCommands(string commands)
-    {
-        foreach (char c in commands)
-        {
-            if (c != 'L' && c != 'R' && c != 'M')
-            {
-                return false;
-            }
-        }
-        return true;
-    }
+        => commands.All(c => c is 'L' or 'R' or 'M');
+
+    // private bool IsValidCommands(string commands)
+    // {
+    //     foreach (char c in commands)
+    //     {
+    //         if (c != 'L' && c != 'R' && c != 'M')
+    //         {
+    //             return false;
+    //         }
+    //     }
+    //     return true;
+    // }
 
     private MoveOutcome IterateCommands(MarsRover rover, IMovementPolicy policy, string commands)
     {
@@ -63,7 +79,7 @@ public sealed class RoverService
                     rover.AdvanceTo(next);
                     break;
                 default:
-                    Debug.Assert(rover != null, "MarsRover is missing");
+                    Debug.Assert(false, "unreachable");
                     break;
             }
         }

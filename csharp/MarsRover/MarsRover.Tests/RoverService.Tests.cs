@@ -132,9 +132,61 @@ public class RoverServiceTests
         var result = service.Execute(rover, plateau, commands);
         // assert
         result.Status.Should().Be(MoveStatus.Completed);
-        result.BlockedAt.Should().Be(new Position(0, 3));
         rover.Heading.Should().Be(Direction.North);
+        rover.Position.Should().Be(new Position(0, 3));
         // rover.Position.X.Should().Be(2);
         // rover.Position.Y.Should().Be(3);
+    }
+
+    [Fact]
+    public void Execute_Can_Handle_Command_With_Whitespace_And_Newline()
+    {
+        // arrange
+        RoverService service = new RoverService();
+        int x = 0;
+        int y = 3;
+        MarsRover rover = new MarsRover(x, y);
+        int height = 5;
+        int width = 5;
+        IReadOnlySet<Position> obstacles = new HashSet<Position>();
+        Plateau plateau = new Plateau(height, width, obstacles);
+        string commands = " m r \n m";
+        // act
+        var result = service.Execute(rover, plateau, commands);
+        // assert
+        result.Status.Should().Be(MoveStatus.Completed);
+        rover.Heading.Should().Be(Direction.East);
+        rover.Position.Should().Be(new Position(1, 4));
+    }
+
+    [Fact]
+    public void Invalid_Command_Mid_Sequance_Should_Be_InvalidCommand_And_Result_In_No_Rover_Movement()
+    {
+        // arrange
+        RoverService service = new RoverService();
+        int x = 3;
+        int y = 3;
+        MarsRover rover = new MarsRover(x, y);
+        int height = 5;
+        int width = 5;
+        IReadOnlySet<Position> obstacles = new HashSet<Position>();
+        Plateau plateau = new Plateau(height, width, obstacles);
+        string commands = "rxm";
+        // act
+        var result = service.Execute(rover, plateau, commands);
+        // assert
+        result.Status.Should().Be(MoveStatus.InvalidCommand);
+        rover.Position.Should().Be(new Position(3, 3));
+    }
+
+    [Theory]
+    [InlineData(0, 0, Direction.South)] // below 0
+    [InlineData(0, 0, Direction.West)]  // below 0
+    [InlineData(9, 9, Direction.North)] // >= Height
+    [InlineData(9, 9, Direction.East)]  // >= Width
+    public void TryStep_ReturnsFalse_WhenNextIsOutOfBounds(int x, int y, Direction dir)
+    {
+        var plateau = new Plateau(10, 10, new HashSet<Position>());
+        plateau.TryStep(new Position(x, y), dir, out var _).Should().BeFalse();
     }
 }

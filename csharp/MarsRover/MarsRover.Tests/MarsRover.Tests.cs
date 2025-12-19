@@ -55,4 +55,24 @@ public class MarsRoverTests
         // sut.Position.Y.Should().Be(0);
         sut.Position.Should().Be(new Position(1, 0));
     }
+
+    [Theory]
+    [InlineData(Direction.North, 'L', Direction.West)]
+    [InlineData(Direction.West, 'L', Direction.South)]
+    [InlineData(Direction.South, 'L', Direction.East)]
+    [InlineData(Direction.East, 'L', Direction.North)]
+    [InlineData(Direction.North, 'R', Direction.East)]
+    [InlineData(Direction.East, 'R', Direction.South)]
+    [InlineData(Direction.South, 'R', Direction.West)]
+    [InlineData(Direction.West, 'R', Direction.North)]
+    public void Turn_ChangesHeading_Correctly(Direction start, char cmd, Direction expected)
+    {
+        var rover = new MarsRover(0, 0);
+
+        while (rover.Heading != start) rover.TurnRight();
+
+        if (cmd == 'L') rover.TurnLeft(); else rover.TurnRight();
+
+        rover.Heading.Should().Be(expected);
+    }
 }
