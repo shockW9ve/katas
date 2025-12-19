@@ -4,33 +4,32 @@ namespace Space.Models;
 
 public class MarsRover
 {
-    public required int X_Position { get; set; }
-    public required int Y_Position { get; set; }
-    public Enum Compas { get; set; } = Direction.North;
+    public Direction Heading { get; private set; } = Direction.North;
+    public Position Position { get; private set; }
+    public MoveStatus Status { get; private set; }
+
+    public MarsRover(int x, int y)
+    {
+        Position = new Position(x, y);
+    }
 
     public string Report()
     {
-        return $"{X_Position} {Y_Position} {Compas.ToString().Substring(0, 1)}";
+        return $"{Position.X} {Position.Y} {Heading}";
     }
 
-    public void Turn(Direction direction)
+    public void TurnRight()
     {
-        switch (direction)
-        {
-            case Direction.North:
-                break;
+        Heading = DirectionExtension.RotateRight(Heading);
+    }
 
-            case Direction.East:
-                break;
+    public void TurnLeft()
+    {
+        Heading = DirectionExtension.RotateLeft(Heading);
+    }
 
-            case Direction.South:
-                break;
-
-            case Direction.West:
-                break;
-
-            default:
-                break;
-        }
+    public void AdvanceTo(Position next)
+    {
+        Position = Position with { X = next.X, Y = next.Y };
     }
 }
