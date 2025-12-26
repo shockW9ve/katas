@@ -12,23 +12,23 @@ export class MarsRover {
     this.y = y;
   }
 
-  getX() {
+  getX(): number {
     return this.x;
   }
 
-  getY() {
+  getY(): number {
     return this.y;
   }
 
-  setX(value: number) {
+  setX(value: number): void {
     this.x = value;
   }
 
-  setY(value: number) {
+  setY(value: number): void {
     this.y = value;
   }
 
-  turnRight() {
+  turnRight(): void {
     switch (this.heading) {
       case Direction.North:
         this.heading = Direction.East;
@@ -48,7 +48,43 @@ export class MarsRover {
     }
   }
 
-  turnLeft() {}
+  turnLeft(): void {
+    switch (this.heading) {
+      case Direction.North:
+        this.heading = Direction.West;
+        break;
+      case Direction.East:
+        this.heading = Direction.North;
+        break;
+      case Direction.South:
+        this.heading = Direction.East;
+        break;
+      case Direction.West:
+        this.heading = Direction.South;
+        break;
+      default:
+        assert(this.heading, "Wrong direction");
+        break;
+    }
+  }
 
-  advanceto() {}
+  advanceTo(): void {
+    switch (this.heading) {
+      case Direction.North:
+        this.y++;
+        break;
+      case Direction.East:
+        this.x++;
+        break;
+      case Direction.South:
+        this.y--;
+        break;
+      case Direction.West:
+        this.x--;
+        break;
+      default:
+        assert(this.heading, "Wrong direction");
+        break;
+    }
+  }
 }
