@@ -1,11 +1,10 @@
-import { Dir } from "node:fs";
-import { Direction } from "../Helpers/Direction";
-import assert from "node:assert";
+import { Direction } from "../Helpers/Direction.js";
+import assert, { throws } from "node:assert";
 
 export class MarsRover {
   private x: number;
   private y: number;
-  private heading: Direction;
+  private heading: Direction = Direction.North;
 
   constructor(x: number, y: number) {
     this.x = x;
@@ -63,12 +62,11 @@ export class MarsRover {
         this.heading = Direction.South;
         break;
       default:
-        assert(this.heading, "Wrong direction");
-        break;
+        throw new Error("Something went wrong");
     }
   }
 
-  advanceTo(): void {
+  isInBound(): void {
     switch (this.heading) {
       case Direction.North:
         this.y++;
@@ -83,8 +81,7 @@ export class MarsRover {
         this.x--;
         break;
       default:
-        assert(this.heading, "Wrong direction");
-        break;
+        throw new Error("Something went wrong");
     }
   }
 }
