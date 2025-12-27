@@ -1,4 +1,4 @@
-import { Position } from "./Position.js";
+import { Position } from "./position.js";
 
 interface IMovementPolicy {
   isBlocked(position: Position): boolean;
