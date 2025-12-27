@@ -1,30 +1,14 @@
-import { Direction } from "../Helpers/Direction.js";
-import assert, { throws } from "node:assert";
+import { Direction } from "../helpers/Direction.js";
+import { directionalDelta } from "../helpers/MovementExtension.js";
+import { Position } from "./position.js";
 
 export class MarsRover {
-  private x: number;
-  private y: number;
-  private heading: Direction = Direction.North;
+  heading: Direction;
+  position: Position;
 
-  constructor(x: number, y: number) {
-    this.x = x;
-    this.y = y;
-  }
-
-  getX(): number {
-    return this.x;
-  }
-
-  getY(): number {
-    return this.y;
-  }
-
-  setX(value: number): void {
-    this.x = value;
-  }
-
-  setY(value: number): void {
-    this.y = value;
+  constructor(position: Position) {
+    this.position = position;
+    this.heading = Direction.North;
   }
 
   turnRight(): void {
@@ -42,8 +26,7 @@ export class MarsRover {
         this.heading = Direction.North;
         break;
       default:
-        assert(this.heading, "Wrong direction");
-        break;
+        throw new Error("Something went wrong");
     }
   }
 
@@ -66,22 +49,12 @@ export class MarsRover {
     }
   }
 
-  isInBound(): void {
-    switch (this.heading) {
-      case Direction.North:
-        this.y++;
-        break;
-      case Direction.East:
-        this.x++;
-        break;
-      case Direction.South:
-        this.y--;
-        break;
-      case Direction.West:
-        this.x--;
-        break;
-      default:
-        throw new Error("Something went wrong");
-    }
+  advanceTo(): void {
+    let delta = directionalDelta(this.heading);
+
+    this.position = {
+      x: this.position.x + delta.dx,
+      y: this.position.y + delta.dy,
+    };
   }
 }

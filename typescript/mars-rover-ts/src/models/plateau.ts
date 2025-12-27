@@ -1,14 +1,11 @@
-interface Position {
-  x: number;
-  y: number;
-}
+import { Position } from "./Position.js";
 
-interface MovementPolicy {
+interface IMovementPolicy {
   isBlocked(position: Position): boolean;
-  legitMove(position: Position): boolean;
+  isInBound(position: Position): boolean;
 }
 
-export class Plateau implements MovementPolicy {
+export class Plateau implements IMovementPolicy {
   private width: number;
   private height: number;
   private obstacles: Array<Position>;
@@ -26,7 +23,7 @@ export class Plateau implements MovementPolicy {
     return false;
   }
 
-  legitMove(position: Position): boolean {
+  isInBound(position: Position): boolean {
     if (
       position.x < 0 ||
       position.x >= this.width ||
