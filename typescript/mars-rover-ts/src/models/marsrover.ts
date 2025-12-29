@@ -11,6 +11,10 @@ export class MarsRover {
     this.heading = Direction.North;
   }
 
+  report(): string {
+    return `x: ${this.position.x} y: ${this.position.y} heading: ${this.heading}`;
+  }
+
   turnRight(): void {
     this.heading = rotate(this.heading, "R");
   }
