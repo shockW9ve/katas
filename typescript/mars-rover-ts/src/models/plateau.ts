@@ -1,25 +1,13 @@
 import { Position } from "./position.js";
 import { directionalDelta } from "../helpers/movementExtension.js";
 import { Direction } from "../helpers/direction.js";
+import { Status, MovementStatus } from "../helpers/status.js";
 
 interface IMovementPolicy {
   isBlocked(position: Position): boolean;
   isInBound(position: Position): boolean;
   candidateMove(current: Position, heading: Direction): MovementStatus;
 }
-
-enum Status {
-  InvalidCommand,
-  ValidMove,
-  Blocked,
-  OutOfBound,
-  Completed,
-}
-
-type MovementStatus = {
-  position: Position;
-  status: Status;
-};
 
 export class Plateau implements IMovementPolicy {
   private width: number;

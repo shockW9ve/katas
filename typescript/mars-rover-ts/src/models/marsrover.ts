@@ -23,12 +23,7 @@ export class MarsRover {
     this.heading = rotate(this.heading, "L");
   }
 
-  advanceTo(): void {
-    let delta = directionalDelta(this.heading);
-
-    this.position = {
-      x: this.position.x + delta.dx,
-      y: this.position.y + delta.dy,
-    };
+  advanceTo(next: Position): void {
+    this.position = next;
   }
 }
