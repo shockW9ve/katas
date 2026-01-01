@@ -10,10 +10,10 @@ interface IMovementPolicy {
 }
 
 export class Plateau implements IMovementPolicy {
-  private width: number;
-  private height: number;
-  private obstacles: Position[];
-  private obstacleKeys: Set<string>;
+  private readonly width: number;
+  private readonly height: number;
+  private readonly obstacles: Position[];
+  private readonly obstacleKeys: Set<string>;
   keyOf = ({ x, y }: Position) => `${x},${y}`;
 
   constructor(width: number, height: number, obstacles: Array<Position>) {
@@ -30,10 +30,10 @@ export class Plateau implements IMovementPolicy {
       y: current.y + delta.dy,
     };
 
-    if (this.isBlocked(candidate)) {
-      return { position: candidate, status: Status.Blocked };
-    } else if (!this.isInBound(candidate)) {
+    if (!this.isInBound(candidate)) {
       return { position: candidate, status: Status.OutOfBound };
+    } else if (this.isBlocked(candidate)) {
+      return { position: candidate, status: Status.Blocked };
     } else {
       return { position: candidate, status: Status.ValidMove };
     }

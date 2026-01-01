@@ -2,6 +2,11 @@ import { Direction, rotate } from "../helpers/direction.js";
 import { directionalDelta } from "../helpers/movementExtension.js";
 import { Position } from "./position.js";
 
+export type RoverLocation = {
+  coordinates: Position;
+  heading: Direction;
+};
+
 export class MarsRover {
   heading: Direction;
   position: Position;
@@ -11,8 +16,11 @@ export class MarsRover {
     this.heading = Direction.North;
   }
 
-  report(): string {
-    return `x: ${this.position.x} y: ${this.position.y} heading: ${this.heading}`;
+  report(): RoverLocation {
+    return {
+      coordinates: { x: this.position.x, y: this.position.y },
+      heading: this.heading,
+    };
   }
 
   turnRight(): void {
