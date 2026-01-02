@@ -77,4 +77,8 @@ describe("Mars Rover", () => {
     expect(rover.position).toStrictEqual({ x: 3, y: 4 });
     expect(rover.heading).toBe(Direction.North);
   });
+
+  //   it.each([{ x: 3, y: 3 }])('advanceTo({$x, $y}) -> $expected', ({x, y, expected}) => {
+  // expect({}).toBe(expected);
+  //   });
 });

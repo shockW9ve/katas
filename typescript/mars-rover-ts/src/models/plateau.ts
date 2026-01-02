@@ -10,9 +10,9 @@ interface IMovementPolicy {
 }
 
 export class Plateau implements IMovementPolicy {
-  private readonly width: number;
-  private readonly height: number;
-  private readonly obstacles: Position[];
+  readonly width: number;
+  readonly height: number;
+  readonly obstacles: Position[];
   private readonly obstacleKeys: Set<string>;
   keyOf = ({ x, y }: Position) => `${x},${y}`;
 

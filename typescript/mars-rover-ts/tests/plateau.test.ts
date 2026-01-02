@@ -1,7 +1,54 @@
 import { describe, it, expect } from "vitest";
+import { Position } from "../src/models/position.js";
+import { Plateau } from "../src/models/plateau.js";
 
 describe("Plateau", () => {
-  it("Grid", () => {});
+  it("Grid", () => {
+    // arrange
+    const width: number = 6;
+    const height: number = 6;
+    const obstacles: Position[] = [{ x: 3, y: 3 }];
+    const plateau: Plateau = new Plateau(width, height, obstacles);
+    // act
+    const heightResult = plateau.height;
+    const widthResult = plateau.width;
+    const obstaclesResult = plateau.obstacles;
+    // assert
+    expect(heightResult).toBe(6);
+    expect(widthResult).toBe(6);
+    expect(obstaclesResult).toHaveLength(1);
+  });
+
+  it("Is in bound", () => {
+    // arrange
+    const width: number = 6;
+    const height: number = 6;
+    const position: Position = { x: 5, y: 5 };
+    const obstacles: Position[] = [{ x: 3, y: 3 }];
+    const plateau: Plateau = new Plateau(width, height, obstacles);
+    // act
+    const inBound = plateau.isInBound(position);
+    // assert
+    expect(inBound).toBeTruthy();
+  });
+
+  it.each([
+    { x: 6, y: 0, expected: false },
+    { x: -1, y: 0, expected: false },
+    { x: 0, y: 6, expected: false },
+    { x: 0, y: -1, expected: false },
+  ])("${x}, ${y}", ({ x, y, expected }) => {
+    // arrange
+    const width: number = 6;
+    const height: number = 6;
+    const position: Position = { x: x, y: y };
+    const obstacles: Position[] = [{ x: 3, y: 3 }];
+    const plateau: Plateau = new Plateau(width, height, obstacles);
+    // act
+    const inBound = plateau.isInBound(position);
+    // assert
+    expect(inBound).toBe(expected);
+  });
 });
 
 // test.each([
