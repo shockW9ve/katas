@@ -33,7 +33,7 @@ export class Plateau implements IMovementPolicy {
     if (!this.isInBound(candidate)) {
       return { position: candidate, status: Status.OutOfBound };
     } else if (this.isBlocked(candidate)) {
-      return { position: candidate, status: Status.Blocked };
+      return { position: current, status: Status.Blocked };
     } else {
       return { position: candidate, status: Status.ValidMove };
     }
