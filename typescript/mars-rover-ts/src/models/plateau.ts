@@ -1,12 +1,12 @@
 import { Position } from "./position.js";
-import { directionalDelta } from "../helpers/movementExtension.js";
-import { Direction } from "../helpers/direction.js";
+// import { directionalDelta } from "../helpers/movementExtension.js";
+// import { Direction } from "../helpers/direction.js";
 import { Status, MovementStatus } from "../helpers/status.js";
 
 interface IMovementPolicy {
   isBlocked(position: Position): boolean;
   isInBound(position: Position): boolean;
-  candidateMove(current: Position, heading: Direction): MovementStatus;
+  candidateMove(candidate: Position, current: Position): MovementStatus;
 }
 
 export class Plateau implements IMovementPolicy {
@@ -23,12 +23,12 @@ export class Plateau implements IMovementPolicy {
     this.obstacleKeys = new Set(obstacles.map(this.keyOf));
   }
 
-  candidateMove(current: Position, heading: Direction): MovementStatus {
-    const delta = directionalDelta(heading);
-    const candidate: Position = {
-      x: current.x + delta.dx,
-      y: current.y + delta.dy,
-    };
+  candidateMove(candidate: Position, current: Position): MovementStatus {
+    // const delta = directionalDelta(heading);
+    // const candidate: Position = {
+    //   x: current.x + delta.dx,
+    //   y: current.y + delta.dy,
+    // };
 
     if (!this.isInBound(candidate)) {
       return { position: candidate, status: Status.OutOfBound };
