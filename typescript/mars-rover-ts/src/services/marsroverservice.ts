@@ -20,7 +20,6 @@ export function execute(
     return { position: rover.position, status: Status.Completed };
   }
   // iterate commands
-  const array: string[] = sanitized.split("");
   for (const c of sanitized) {
     if (c === "L") {
       rover.turnLeft();
