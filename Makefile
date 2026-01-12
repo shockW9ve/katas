@@ -2,6 +2,8 @@
 
 ts:
 	cd typescript/string-calculator && npm test
+	cd typescript/mars-rover-ts && npm test
+	cd typescript/tennis && npm test
 
 csharp:
 	cd csharp && dotnet test
