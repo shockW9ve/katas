@@ -38,8 +38,15 @@ enum phase {
   Normal,
   Deuce,
   Advantage,
+  Game,
   Tiebreaker,
 }
+
+const INDEX: Record<number, string> = {
+  0: "0",
+  1: "15",
+  2: "30",
+};
 
 type State = {
   playerA: string;
@@ -48,9 +55,13 @@ type State = {
 };
 
 type PlayerId = "A" | "B";
+type Points = Readonly<{
+  a: number;
+  b: number;
+}>;
 
 interface Tennis {}
-class Player {
+export class Player {
   private point: number;
   private game: number;
   private set: number;
@@ -66,22 +77,39 @@ class Player {
   public getPlayerId(): PlayerId {
     return this.id;
   }
+
+  public getPoint(): string {
+    return `${this.point}`;
+  }
+
+  public setPoint() {
+    this.point += 15;
+  }
 }
 export default class TennisGame implements Tennis {
   private playerA: Player;
   private playerB: Player;
-  private score: string;
+  private readonly points: Set<string>;
+  score = ({ a, b }: Points) => `${a}-${b}`;
 
-  constructor(playerA: Player, playerB: Player) {
+  constructor(playerA: Player, playerB: Player, points: Array<Points>) {
     this.playerA = playerA;
     this.playerB = playerB;
-    this.score = "0-0";
+    this.points = new Set(points.map(this.score));
   }
 
-  point(player: PlayerId) {}
+  point(player: PlayerId) {
+    if (player === "A") {
+      this.playerA.setPoint();
+    } else {
+      this.playerB.setPoint();
+    }
+  }
+
   currentScore(): string {
     return "";
   }
+
   nextState(player: string, state: State): State {
     return { playerA: "15", playerB: "0", phase: phase.Normal };
   }
