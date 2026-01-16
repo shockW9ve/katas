@@ -90,12 +90,12 @@ export class Player {
 export default class TennisGame implements Tennis {
   private pointA: number;
   private pointB: number;
-  private playerA: Player;
-  private playerB: Player;
-  private readonly points: Set<string>;
+  // private playerA: Player;
+  // private playerB: Player;
+  // private readonly points: Set<string>;
   score = ({ a, b }: Points) => `${a}-${b}`;
 
-  private phase: Phase;
+  private currentPhase: Phase;
   private readonly normal: Map<number, string> = new Map([
     [0, "0"],
     [1, "15"],
@@ -108,7 +108,7 @@ export default class TennisGame implements Tennis {
     // this.points = new Set(points.map(this.score));
     this.pointA = 0;
     this.pointB = 0;
-    this.phase = Phase.Normal;
+    this.currentPhase = Phase.Normal;
   }
 
   point(player: PlayerId) {
@@ -133,11 +133,48 @@ export default class TennisGame implements Tennis {
       // TODO USE STATE
       const nextScore = this.normal.get(this.pointA + 1);
       const currentScore = this.normal.get(this.pointB);
-      return { playerA: nextScore, playerB: currentScore, phase: this.phase };
+      return {
+        playerA: nextScore,
+        playerB: currentScore,
+        phase: this.currentPhase,
+      };
     } else {
       const nextScore = this.normal.get(this.pointB + 1);
       const currentScore = this.normal.get(this.pointA);
-      return { playerA: currentScore, playerB: nextScore, phase: this.phase };
+      return {
+        playerA: currentScore,
+        playerB: nextScore,
+        phase: this.currentPhase,
+      };
     }
+  }
+
+  phase(playerA: PlayerId, playerB: PlayerId): Phase {
+    if (this.pointA < 3 && this.pointB < 3) {
+      return Phase.Normal;
+    } else if (
+      (this.pointA === 3 && this.pointB < 3) ||
+      (this.pointB === 3 && this.pointA < 3)
+    ) {
+      return Phase.Fortyland;
+    } else if (
+      this.pointA === 3 &&
+      this.pointB === 3 &&
+      this.pointA === this.pointB
+    ) {
+      return Phase.Deuce;
+    } else if (
+      this.pointA >= 3 &&
+      this.pointB >= 3 &&
+      Math.abs(this.pointA - this.pointB) === 1
+    ) {
+      return Phase.Advantage;
+    } else if (
+      Math.max(this.pointA, this.pointB) >= 4 &&
+      Math.abs(this.pointA - this.pointB) >= 2
+    ) {
+      return Phase.Game;
+    }
+    return Phase.Tiebreaker;
   }
 }
