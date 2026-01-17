@@ -36,145 +36,166 @@
 //
 enum Phase {
   Normal,
-  Fortyland,
   Deuce,
   Advantage,
   Game,
   Tiebreaker,
 }
 
-const INDEX: Record<number, string> = {
-  0: "0",
-  1: "15",
-  2: "30",
-};
+// export type State = {
+//   playerA: string | undefined;
+//   playerB: string | undefined;
+//   phase: Phase;
+// };
 
-type State = {
-  playerA: string | undefined;
-  playerB: string | undefined;
-  phase: Phase;
-};
+// export class Player {
+//   private point: number;
+//   private game: number;
+//   private set: number;
+//   private id: PlayerId;
+//
+//   constructor(id: PlayerId) {
+//     this.point = 0;
+//     this.game = 0;
+//     this.set = 0;
+//     this.id = id;
+//   }
+//
+//   public getPlayerId(): PlayerId {
+//     return this.id;
+//   }
+//
+//   public getPoint(): string {
+//     return `${this.point}`;
+//   }
+//
+//   public setPoint() {
+//     this.point += 15;
+//   }
+// }
 
-type PlayerId = "A" | "B";
-type Points = Readonly<{
-  a: number;
-  b: number;
-}>;
+type Player = "A" | "B";
+type Points = { a: number; b: number };
+type State = { a: string; b: string; phase: Phase };
 
-interface Tennis {}
-export class Player {
-  private point: number;
-  private game: number;
-  private set: number;
-  private id: PlayerId;
+interface Tennis {
+  score(): State;
+  point(point: Player): void;
+}
+function applyPoint(points: Points, player: Player): Points {}
 
-  constructor(id: PlayerId) {
-    this.point = 0;
-    this.game = 0;
-    this.set = 0;
-    this.id = id;
+function formatScore(points: Points): State {}
+
+export default class Game implements Tennis {
+  private points: Points = { a: 0, b: 0 };
+  point(player: Player) {
+    this.points = applyPoint(this.points, player);
   }
-
-  public getPlayerId(): PlayerId {
-    return this.id;
+  score(): State {
+    return formatScore(this.points);
   }
-
-  public getPoint(): string {
-    return `${this.point}`;
-  }
-
-  public setPoint() {
-    this.point += 15;
+  constructor() {
+    console.log("Game initialized...");
   }
 }
-export default class TennisGame implements Tennis {
-  private pointA: number;
-  private pointB: number;
-  // private playerA: Player;
-  // private playerB: Player;
-  // private readonly points: Set<string>;
-  score = ({ a, b }: Points) => `${a}-${b}`;
-
-  private currentPhase: Phase;
-  private readonly normal: Map<number, string> = new Map([
-    [0, "0"],
-    [1, "15"],
-    [2, "30"],
-  ]);
-
-  constructor(playerA: Player, playerB: Player, points: Array<Points>) {
-    // this.playerA = playerA;
-    // this.playerB = playerB;
-    // this.points = new Set(points.map(this.score));
-    this.pointA = 0;
-    this.pointB = 0;
-    this.currentPhase = Phase.Normal;
-  }
-
-  point(player: PlayerId) {
-    if (player === "A") {
-      this.pointA++;
-    } else {
-      this.pointB++;
-    }
-    // if (player === "A") {
-    //   this.playerA.setPoint();
-    // } else {
-    //   this.playerB.setPoint();
-    // }
-  }
-
-  currentScore(): string {
-    return `${this.normal.get(this.pointA)}-${this.normal.get(this.pointB)}`;
-  }
-
-  nextState(player: PlayerId, state: State): State {
-    if (player === "A") {
-      // TODO USE STATE
-      const nextScore = this.normal.get(this.pointA + 1);
-      const currentScore = this.normal.get(this.pointB);
-      return {
-        playerA: nextScore,
-        playerB: currentScore,
-        phase: this.currentPhase,
-      };
-    } else {
-      const nextScore = this.normal.get(this.pointB + 1);
-      const currentScore = this.normal.get(this.pointA);
-      return {
-        playerA: currentScore,
-        playerB: nextScore,
-        phase: this.currentPhase,
-      };
-    }
-  }
-
-  phase(playerA: PlayerId, playerB: PlayerId): Phase {
-    if (this.pointA < 3 && this.pointB < 3) {
-      return Phase.Normal;
-    } else if (
-      (this.pointA === 3 && this.pointB < 3) ||
-      (this.pointB === 3 && this.pointA < 3)
-    ) {
-      return Phase.Fortyland;
-    } else if (
-      this.pointA === 3 &&
-      this.pointB === 3 &&
-      this.pointA === this.pointB
-    ) {
-      return Phase.Deuce;
-    } else if (
-      this.pointA >= 3 &&
-      this.pointB >= 3 &&
-      Math.abs(this.pointA - this.pointB) === 1
-    ) {
-      return Phase.Advantage;
-    } else if (
-      Math.max(this.pointA, this.pointB) >= 4 &&
-      Math.abs(this.pointA - this.pointB) >= 2
-    ) {
-      return Phase.Game;
-    }
-    return Phase.Tiebreaker;
-  }
-}
+// private readonly points: Map<number, string> = new Map([
+//   [0, "0"],
+//   [1, "15"],
+//   [2, "30"],
+//   [3, "40"],
+//   [4, "Advantage"],
+//   [5, "Game"],
+// ]);
+//
+// constructor() {
+//   // this.playerA = playerA;
+//   // this.playerB = playerB;
+//   // this.points = new Set(points.map(this.score));
+//   this.pointA = 0;
+//   this.pointB = 0;
+//   this.currentPhase = Phase.Normal;
+// }
+//
+// point(player: PlayerId) {
+//   if (player === "A") {
+//     this.pointA++;
+//     this.currentPhase = this.phase();
+//   } else {
+//     this.pointB++;
+//     this.currentPhase = this.phase();
+//   }
+// }
+//
+// score(): string {
+//   return `${this.points.get(this.pointA)}-${this.points.get(this.pointB)}`;
+// }
+//
+// state(player: PlayerId): State {
+//   if (player === "A") {
+//     const nextScore = this.points.get(this.pointA);
+//     const currentScore = this.points.get(this.pointB);
+//     return {
+//       playerA: nextScore,
+//       playerB: currentScore,
+//       phase: this.currentPhase,
+//     };
+//   } else {
+//     const nextScore = this.points.get(this.pointB);
+//     const currentScore = this.points.get(this.pointA);
+//     return {
+//       playerA: currentScore,
+//       playerB: nextScore,
+//       phase: this.currentPhase,
+//     };
+//   }
+// }
+// nextState(player: PlayerId): State {
+//   if (player === "A") {
+//     // TODO USE STATE
+//     const nextScore = this.points.get(this.pointA + 1);
+//     const currentScore = this.points.get(this.pointB);
+//     return {
+//       playerA: nextScore,
+//       playerB: currentScore,
+//       phase: this.currentPhase,
+//     };
+//   } else {
+//     const nextScore = this.points.get(this.pointB + 1);
+//     const currentScore = this.points.get(this.pointA);
+//     return {
+//       playerA: currentScore,
+//       playerB: nextScore,
+//       phase: this.currentPhase,
+//     };
+//   }
+// }
+//
+// phase(): Phase {
+//   if (this.pointA < 3 && this.pointB < 3) {
+//     return Phase.Normal;
+//   } else if (
+//     (this.pointA === 3 && this.pointB < 3) ||
+//     (this.pointB === 3 && this.pointA < 3)
+//   ) {
+//     return Phase.Fortyland;
+//   } else if (
+//     this.pointA === 3 &&
+//     this.pointB === 3 &&
+//     this.pointA === this.pointB
+//   ) {
+//     return Phase.Deuce;
+//   } else if (
+//     this.pointA >= 3 &&
+//     this.pointB >= 3 &&
+//     Math.abs(this.pointA - this.pointB) === 1
+//   ) {
+//     return Phase.Advantage;
+//   } else if (
+//     Math.max(this.pointA, this.pointB) >= 4 &&
+//     Math.abs(this.pointA - this.pointB) >= 2
+//   ) {
+//     return Phase.Game;
+//   }
+//   return Phase.Tiebreaker;
+// }
+// }
