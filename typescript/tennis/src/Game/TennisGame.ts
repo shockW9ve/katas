@@ -34,13 +34,6 @@
 //         Matches are typically played as best-of-three or best-of-five sets.
 //         To win a match, a player must win the majority of the prescribed sets (2 out of 3 or 3 out of 5).
 //
-enum Phase {
-  Normal,
-  Deuce,
-  Advantage,
-  Game,
-  Tiebreaker,
-}
 
 // export type State = {
 //   playerA: string | undefined;
@@ -74,17 +67,69 @@ enum Phase {
 //   }
 // }
 
+type Phase =
+  | "Normal"
+  | "Deuce"
+  | "AdvantageA"
+  | "AdvantageB"
+  | "GameA"
+  | "GameB"
+  | "Tiebreaker";
 type Player = "A" | "B";
 type Points = { a: number; b: number };
-type State = { a: string; b: string; phase: Phase };
+type State = { a: string | undefined; b: string | undefined; phase: Phase };
 
 interface Tennis {
   score(): State;
   point(point: Player): void;
 }
-function applyPoint(points: Points, player: Player): Points {}
+function applyPoint(points: Points, player: Player): Points {
+  if (player === "A") {
+    return { a: points.a++, b: points.b };
+  } else {
+    return { a: points.a, b: points.b++ };
+  }
+}
 
-function formatScore(points: Points): State {}
+function formatScore(points: Points): State {
+  const pointArray: Array<string> = ["0", "15", "30", "40"];
+  // const pointsToString: Map<number, string> = new Map([
+  //   [0, "0"],
+  //   [1, "15"],
+  //   [2, "30"],
+  //   [3, "40"],
+  //   [4, "Advantage"],
+  //   [5, "Game"],
+  // ]);
+  return {
+    a: pointArray[points.a],
+    b: pointArray[points.b],
+    phase: phaseFor(),
+  };
+}
+
+function phaseFor(points: Points): Phase {
+  // From deuce (a>=3 && b>=3 && a===b), exactly one point → advantage or game.
+  // Game when max(a,b) >= 4 && |a-b| >= 2.
+  // Advantage when a>=3 && b>=3 && |a-b|===1
+  if (points.a < 3 && points.b < 3) {
+    return "Normal";
+  } else if (points.a >= 3 && points.a >= 3 && points.a === points.b) {
+    return "Deuce";
+  } else if (
+    points.a >= 3 &&
+    points.b >= 3 &&
+    Math.abs(points.a - points.b) === 1
+  ) {
+    return "AdvantageA";
+  } else if (
+    Math.max(this.pointA, this.pointB) >= 4 &&
+    Math.abs(this.pointA - this.pointB) >= 2
+  ) {
+    return Phase.Game;
+  }
+  return Phase.Tiebreaker;
+}
 
 export default class Game implements Tennis {
   private points: Points = { a: 0, b: 0 };
