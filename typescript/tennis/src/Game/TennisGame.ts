@@ -84,14 +84,15 @@ interface Tennis {
   point(point: Player): void;
 }
 function applyPoint(points: Points, player: Player): Points {
+  console.log(player);
   if (player === "A") {
-    return { a: points.a++, b: points.b };
+    return { a: ++points.a, b: points.b };
   } else {
-    return { a: points.a, b: points.b++ };
+    return { a: points.a, b: ++points.b };
   }
 }
 
-function formatScore(points: Points): State {
+function formatScore(points: Points): State | Phase {
   const pointArray: Array<string> = ["0", "15", "30", "40"];
   // const pointsToString: Map<number, string> = new Map([
   //   [0, "0"],
@@ -101,10 +102,17 @@ function formatScore(points: Points): State {
   //   [4, "Advantage"],
   //   [5, "Game"],
   // ]);
+  let currentPhase = phaseFor(points);
+  console.log("format points:" + points.a + points.b);
+
+  if (currentPhase != "Normal") {
+    return;
+    currentPhase;
+  }
   return {
     a: pointArray[points.a],
     b: pointArray[points.b],
-    phase: phaseFor(),
+    phase: phaseFor(points),
   };
 }
 
@@ -112,30 +120,42 @@ function phaseFor(points: Points): Phase {
   // From deuce (a>=3 && b>=3 && a===b), exactly one point → advantage or game.
   // Game when max(a,b) >= 4 && |a-b| >= 2.
   // Advantage when a>=3 && b>=3 && |a-b|===1
+  //
+  // If max(a,b) >= 4 && |a-b| >= 2 → GameA/B
+  // Else if a >= 3 && b >= 3 && a === b → Deuce
+  // Else if a >= 3 && b >= 3 && |a-b| === 1 → AdvantageA/B
+  // Else → Normal
   if (points.a < 3 && points.b < 3) {
     return "Normal";
   } else if (points.a >= 3 && points.a >= 3 && points.a === points.b) {
     return "Deuce";
-  } else if (
-    points.a >= 3 &&
-    points.b >= 3 &&
-    Math.abs(points.a - points.b) === 1
-  ) {
-    return "AdvantageA";
-  } else if (
-    Math.max(this.pointA, this.pointB) >= 4 &&
-    Math.abs(this.pointA - this.pointB) >= 2
-  ) {
-    return Phase.Game;
   }
-  return Phase.Tiebreaker;
+  if (points.a >= 3 && points.b >= 3 && Math.abs(points.a - points.b) === 1) {
+    if (points.a > points.b) {
+      return "AdvantageA";
+    } else {
+      return "AdvantageB";
+    }
+  }
+  // if (Math.max(points.a, points.b) >= 4 && Math.abs(points.a - points.b) >= 2) {
+  if (Math.max(points.a, points.b) >= 4) {
+    if (points.a > points.b) {
+      return "GameA";
+    } else {
+      return "GameB";
+    }
+  }
+  //TODO
+  return "Tiebreaker";
 }
 
 export default class Game implements Tennis {
   private points: Points = { a: 0, b: 0 };
+
   point(player: Player) {
     this.points = applyPoint(this.points, player);
   }
+
   score(): State {
     return formatScore(this.points);
   }
