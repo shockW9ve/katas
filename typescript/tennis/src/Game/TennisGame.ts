@@ -76,7 +76,7 @@ type Phase =
   | "GameB"
   | "Tiebreaker";
 type Player = "A" | "B";
-type Points = { a: number; b: number };
+export type Points = { a: number; b: number };
 type State = { a: string | undefined; b: string | undefined; phase: Phase };
 
 interface Tennis {
@@ -84,13 +84,13 @@ interface Tennis {
   point(point: Player): void;
 }
 
-function applyPoint(points: Points, player: Player): Points {
+export function applyPoint(points: Points, player: Player): Points {
   const nextA: number = points.a + (player == "A" ? 1 : 0);
   const nextB: number = points.b + (player == "B" ? 1 : 0);
   return { a: nextA, b: nextB };
 }
 
-function formatScore(points: Points): State | Phase {
+export function formatScore(points: Points): State | Phase {
   const pointArray: Array<string> = ["0", "15", "30", "40"];
   const currentPhase = phaseFor(points);
 
@@ -105,15 +105,7 @@ function formatScore(points: Points): State | Phase {
   }
 }
 
-function phaseFor(points: Points): Phase {
-  // From deuce (a>=3 && b>=3 && a===b), exactly one point → advantage or game.
-  // Game when max(a,b) >= 4 && |a-b| >= 2.
-  // Advantage when a>=3 && b>=3 && |a-b|===1
-  //
-  // If max(a,b) >= 4 && |a-b| >= 2 → GameA/B
-  // Else if a >= 3 && b >= 3 && a === b → Deuce
-  // Else if a >= 3 && b >= 3 && |a-b| === 1 → AdvantageA/B
-  // Else → Normal
+export function phaseFor(points: Points): Phase {
   if (Math.max(points.a, points.b) >= 4 && Math.abs(points.a - points.b) >= 2) {
     if (points.a > points.b) {
       return "GameA";
