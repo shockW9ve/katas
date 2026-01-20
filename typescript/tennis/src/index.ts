@@ -5,22 +5,17 @@ export const hello = () => "Kal Was Flam";
 const gaming: Game = new Game();
 let isActive: boolean = true;
 while (isActive) {
-  // let num = Math.floor(Math.random() * 1) + 1;
-  let num = 2;
+  let num = Math.floor(Math.random() * (2 - 1 + 1)) + 1;
   if (num === 1) {
     gaming.point("A");
   } else {
     gaming.point("B");
   }
 
-  // sleep(3000);
+  console.log(gaming.score());
+
   let state = gaming.score();
-  if (state.phase === "GameA" || state.phase === "GameB") {
+  if (state === "GameA" || state === "GameB") {
     isActive = false;
   }
 }
-console.log(gaming.score());
-
-// async function sleep(ms: number): Promise<void> {
-//   return new Promise((resolve) => setTimeout(resolve, ms));
-// }

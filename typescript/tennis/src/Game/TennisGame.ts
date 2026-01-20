@@ -80,40 +80,29 @@ type Points = { a: number; b: number };
 type State = { a: string | undefined; b: string | undefined; phase: Phase };
 
 interface Tennis {
-  score(): State;
+  score(): State | Phase;
   point(point: Player): void;
 }
+
 function applyPoint(points: Points, player: Player): Points {
-  console.log(player);
-  if (player === "A") {
-    return { a: ++points.a, b: points.b };
-  } else {
-    return { a: points.a, b: ++points.b };
-  }
+  const nextA: number = points.a + (player == "A" ? 1 : 0);
+  const nextB: number = points.b + (player == "B" ? 1 : 0);
+  return { a: nextA, b: nextB };
 }
 
 function formatScore(points: Points): State | Phase {
   const pointArray: Array<string> = ["0", "15", "30", "40"];
-  // const pointsToString: Map<number, string> = new Map([
-  //   [0, "0"],
-  //   [1, "15"],
-  //   [2, "30"],
-  //   [3, "40"],
-  //   [4, "Advantage"],
-  //   [5, "Game"],
-  // ]);
-  let currentPhase = phaseFor(points);
-  console.log("format points:" + points.a + points.b);
+  const currentPhase = phaseFor(points);
 
   if (currentPhase != "Normal") {
-    return;
-    currentPhase;
+    return currentPhase;
+  } else {
+    return {
+      a: pointArray[points.a],
+      b: pointArray[points.b],
+      phase: phaseFor(points),
+    };
   }
-  return {
-    a: pointArray[points.a],
-    b: pointArray[points.b],
-    phase: phaseFor(points),
-  };
 }
 
 function phaseFor(points: Points): Phase {
@@ -125,28 +114,27 @@ function phaseFor(points: Points): Phase {
   // Else if a >= 3 && b >= 3 && a === b → Deuce
   // Else if a >= 3 && b >= 3 && |a-b| === 1 → AdvantageA/B
   // Else → Normal
-  if (points.a < 3 && points.b < 3) {
-    return "Normal";
-  } else if (points.a >= 3 && points.a >= 3 && points.a === points.b) {
-    return "Deuce";
-  }
-  if (points.a >= 3 && points.b >= 3 && Math.abs(points.a - points.b) === 1) {
-    if (points.a > points.b) {
-      return "AdvantageA";
-    } else {
-      return "AdvantageB";
-    }
-  }
-  // if (Math.max(points.a, points.b) >= 4 && Math.abs(points.a - points.b) >= 2) {
-  if (Math.max(points.a, points.b) >= 4) {
+  if (Math.max(points.a, points.b) >= 4 && Math.abs(points.a - points.b) >= 2) {
     if (points.a > points.b) {
       return "GameA";
     } else {
       return "GameB";
     }
+  } else if (points.a >= 3 && points.b >= 3 && points.a === points.b) {
+    return "Deuce";
+  } else if (
+    points.a >= 3 &&
+    points.b >= 3 &&
+    Math.abs(points.a - points.b) === 1
+  ) {
+    if (points.a > points.b) {
+      return "AdvantageA";
+    } else {
+      return "AdvantageB";
+    }
+  } else {
+    return "Normal";
   }
-  //TODO
-  return "Tiebreaker";
 }
 
 export default class Game implements Tennis {
@@ -156,111 +144,10 @@ export default class Game implements Tennis {
     this.points = applyPoint(this.points, player);
   }
 
-  score(): State {
+  score(): State | Phase {
     return formatScore(this.points);
   }
   constructor() {
     console.log("Game initialized...");
   }
 }
-// private readonly points: Map<number, string> = new Map([
-//   [0, "0"],
-//   [1, "15"],
-//   [2, "30"],
-//   [3, "40"],
-//   [4, "Advantage"],
-//   [5, "Game"],
-// ]);
-//
-// constructor() {
-//   // this.playerA = playerA;
-//   // this.playerB = playerB;
-//   // this.points = new Set(points.map(this.score));
-//   this.pointA = 0;
-//   this.pointB = 0;
-//   this.currentPhase = Phase.Normal;
-// }
-//
-// point(player: PlayerId) {
-//   if (player === "A") {
-//     this.pointA++;
-//     this.currentPhase = this.phase();
-//   } else {
-//     this.pointB++;
-//     this.currentPhase = this.phase();
-//   }
-// }
-//
-// score(): string {
-//   return `${this.points.get(this.pointA)}-${this.points.get(this.pointB)}`;
-// }
-//
-// state(player: PlayerId): State {
-//   if (player === "A") {
-//     const nextScore = this.points.get(this.pointA);
-//     const currentScore = this.points.get(this.pointB);
-//     return {
-//       playerA: nextScore,
-//       playerB: currentScore,
-//       phase: this.currentPhase,
-//     };
-//   } else {
-//     const nextScore = this.points.get(this.pointB);
-//     const currentScore = this.points.get(this.pointA);
-//     return {
-//       playerA: currentScore,
-//       playerB: nextScore,
-//       phase: this.currentPhase,
-//     };
-//   }
-// }
-// nextState(player: PlayerId): State {
-//   if (player === "A") {
-//     // TODO USE STATE
-//     const nextScore = this.points.get(this.pointA + 1);
-//     const currentScore = this.points.get(this.pointB);
-//     return {
-//       playerA: nextScore,
-//       playerB: currentScore,
-//       phase: this.currentPhase,
-//     };
-//   } else {
-//     const nextScore = this.points.get(this.pointB + 1);
-//     const currentScore = this.points.get(this.pointA);
-//     return {
-//       playerA: currentScore,
-//       playerB: nextScore,
-//       phase: this.currentPhase,
-//     };
-//   }
-// }
-//
-// phase(): Phase {
-//   if (this.pointA < 3 && this.pointB < 3) {
-//     return Phase.Normal;
-//   } else if (
-//     (this.pointA === 3 && this.pointB < 3) ||
-//     (this.pointB === 3 && this.pointA < 3)
-//   ) {
-//     return Phase.Fortyland;
-//   } else if (
-//     this.pointA === 3 &&
-//     this.pointB === 3 &&
-//     this.pointA === this.pointB
-//   ) {
-//     return Phase.Deuce;
-//   } else if (
-//     this.pointA >= 3 &&
-//     this.pointB >= 3 &&
-//     Math.abs(this.pointA - this.pointB) === 1
-//   ) {
-//     return Phase.Advantage;
-//   } else if (
-//     Math.max(this.pointA, this.pointB) >= 4 &&
-//     Math.abs(this.pointA - this.pointB) >= 2
-//   ) {
-//     return Phase.Game;
-//   }
-//   return Phase.Tiebreaker;
-// }
-// }
