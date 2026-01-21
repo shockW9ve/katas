@@ -16,6 +16,13 @@ while (isActive) {
 
   let state = gaming.score();
   if (state === "GameA" || state === "GameB") {
+    if (state === "GameA") {
+      gaming.game("A");
+    } else {
+      gaming.game("B");
+    }
+    gaming.resetPoints();
+  } else if (state === "SetA" || state === "SetB") {
     isActive = false;
   }
 }
