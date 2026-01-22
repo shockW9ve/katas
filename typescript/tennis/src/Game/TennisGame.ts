@@ -44,7 +44,8 @@ type Phase =
   | "GameB"
   | "SetA"
   | "SetB"
-  | "Tiebreaker";
+  | "Tiebreaker"
+  | "Match";
 type Player = "A" | "B";
 export type Points = { a: number; b: number };
 type Games = { a: number; b: number };
@@ -53,6 +54,7 @@ type State = {
   a: string | undefined;
   b: string | undefined;
   games: Games;
+  sets: Sets;
   phase: Phase;
 };
 
@@ -67,16 +69,44 @@ export function applyPoint(points: Points, player: Player): Points {
   return { a: nextA, b: nextB };
 }
 
-export function applyGame(games: Games, player: Player): Points {
+export function applyGame(games: Games, player: Player): Games {
   const nextA: number = games.a + (player == "A" ? 1 : 0);
   const nextB: number = games.b + (player == "B" ? 1 : 0);
   return { a: nextA, b: nextB };
 }
 
-export function formatScore(points: Points, games: Games): State | Phase {
-  const pointArray: Array<string> = ["0", "15", "30", "40"];
-  const currentPhase = phaseFor(points, games);
+export function applySet(sets: Sets, player: Player): Sets {
+  const nextA: number = sets.a + (player == "A" ? 1 : 0);
+  const nextB: number = sets.b + (player == "B" ? 1 : 0);
+  return { a: nextA, b: nextB };
+}
 
+export function formatScore(
+  points: Points,
+  games: Games,
+  sets: Sets,
+): State | Phase {
+  const pointArray: Array<string> = ["0", "15", "30", "40"];
+  const currentPhase = phaseFor(points, games, sets);
+
+  // if (currentPhase === "SetA") {
+  //   return {
+  //     a: pointArray[points.a],
+  //     b: pointArray[points.b],
+  //     games: { a: games.a, b: games.b },
+  //     sets: { a: sets.a, b: sets.b },
+  //     phase: currentPhase,
+  //   };
+  // }
+  if (currentPhase === "SetB") {
+    return {
+      a: pointArray[points.a],
+      b: pointArray[points.b],
+      games: { a: games.a, b: games.b },
+      sets: { a: sets.a, b: sets.b },
+      phase: currentPhase,
+    };
+  }
   if (currentPhase != "Normal") {
     return currentPhase;
   } else {
@@ -84,25 +114,35 @@ export function formatScore(points: Points, games: Games): State | Phase {
       a: pointArray[points.a],
       b: pointArray[points.b],
       games: { a: games.a, b: games.b },
+      sets: { a: sets.a, b: sets.b },
       phase: currentPhase,
     };
   }
 }
 
-export function phaseFor(points: Points, games: Games): Phase {
-  if (Math.max(games.a, games.b) >= 6 && Math.abs(games.a - games.b) >= 2) {
-    if (points.a > points.b) {
-      return "SetA";
-    } else {
-      return "SetB";
-    }
+export function phaseFor(points: Points, games: Games, sets: Sets): Phase {
+  if (Math.max(sets.a, sets.b) >= 6 && Math.abs(sets.a - sets.b) >= 2) {
+    return "Match";
   }
+
+  // if (sets.a >= 6 && sets.b >= 6 && sets.a === sets.b) {
+  //   return "Tiebreaker";
+  // }
 
   if (Math.max(points.a, points.b) >= 4 && Math.abs(points.a - points.b) >= 2) {
     if (points.a > points.b) {
       return "GameA";
     } else {
       return "GameB";
+    }
+  } else if (
+    Math.max(games.a, games.b) >= 6 &&
+    Math.abs(games.a - games.b) >= 2
+  ) {
+    if (points.a > points.b) {
+      return "SetA";
+    } else {
+      return "SetB";
     }
   } else if (points.a >= 3 && points.b >= 3 && points.a === points.b) {
     return "Deuce";
@@ -138,11 +178,11 @@ export default class Game implements Tennis {
   }
 
   set(player: Player) {
-    //TODO
+    this.sets = applySet(this.sets, player);
   }
 
   score(): State | Phase {
-    return formatScore(this.points, this.games);
+    return formatScore(this.points, this.games, this.sets);
   }
   constructor() {
     console.log("Game initialized...");

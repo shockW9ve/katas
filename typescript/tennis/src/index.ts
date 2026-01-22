@@ -12,8 +12,6 @@ while (isActive) {
     gaming.point("B");
   }
 
-  console.log(gaming.score());
-
   let state = gaming.score();
   if (state === "GameA" || state === "GameB") {
     if (state === "GameA") {
@@ -22,7 +20,18 @@ while (isActive) {
       gaming.game("B");
     }
     gaming.resetPoints();
-  } else if (state === "SetA" || state === "SetB") {
+  }
+  if (state === "SetA" || state === "SetB") {
+    if (state === "SetA") {
+      gaming.set("A");
+    } else {
+      gaming.set("B");
+    }
+    gaming.resetPoints();
+  }
+  if (state === "Match") {
     isActive = false;
   }
+
+  console.log(gaming.score());
 }
