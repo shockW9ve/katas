@@ -89,6 +89,13 @@ export function formatScore(
   const pointArray: Array<string> = ["0", "15", "30", "40"];
   const currentPhase = phaseFor(points, games, sets);
 
+  return {
+    a: pointArray[points.a],
+    b: pointArray[points.b],
+    games: { a: games.a, b: games.b },
+    sets: { a: sets.a, b: sets.b },
+    phase: currentPhase,
+  };
   // if (currentPhase === "SetA") {
   //   return {
   //     a: pointArray[points.a],
@@ -98,43 +105,46 @@ export function formatScore(
   //     phase: currentPhase,
   //   };
   // }
-  if (currentPhase === "SetB") {
-    return {
-      a: pointArray[points.a],
-      b: pointArray[points.b],
-      games: { a: games.a, b: games.b },
-      sets: { a: sets.a, b: sets.b },
-      phase: currentPhase,
-    };
-  }
-  if (currentPhase != "Normal") {
-    return currentPhase;
-  } else {
-    return {
-      a: pointArray[points.a],
-      b: pointArray[points.b],
-      games: { a: games.a, b: games.b },
-      sets: { a: sets.a, b: sets.b },
-      phase: currentPhase,
-    };
-  }
+  // if (currentPhase === "SetB") {
+  //   return {
+  //     a: pointArray[points.a],
+  //     b: pointArray[points.b],
+  //     games: { a: games.a, b: games.b },
+  //     sets: { a: sets.a, b: sets.b },
+  //     phase: currentPhase,
+  //   };
+  // }
+  // if (currentPhase != "Normal" || currentPhase ) {
+  //   return currentPhase;
+  // } else {
+  //   return {
+  //     a: pointArray[points.a],
+  //     b: pointArray[points.b],
+  //     games: { a: games.a, b: games.b },
+  //     sets: { a: sets.a, b: sets.b },
+  //     phase: currentPhase,
+  //   };
+  // }
 }
 
 export function phaseFor(points: Points, games: Games, sets: Sets): Phase {
+  let isTieBreaker = false;
   if (Math.max(sets.a, sets.b) >= 6 && Math.abs(sets.a - sets.b) >= 2) {
     return "Match";
   }
-
-  // if (sets.a >= 6 && sets.b >= 6 && sets.a === sets.b) {
-  //   return "Tiebreaker";
-  // }
-
-  if (Math.max(points.a, points.b) >= 4 && Math.abs(points.a - points.b) >= 2) {
-    if (points.a > points.b) {
-      return "GameA";
-    } else {
-      return "GameB";
+  if (isTieBreaker) {
+    if (
+      Math.max(points.a, points.b) >= 7 &&
+      Math.abs(points.a - points.b) >= 2
+    ) {
+      return "Match";
     }
+    return "Tiebreaker";
+  }
+
+  if (games.a >= 6 && games.b >= 6 && games.a === games.b) {
+    isTieBreaker = true;
+    return "Tiebreaker";
   } else if (
     Math.max(games.a, games.b) >= 6 &&
     Math.abs(games.a - games.b) >= 2
@@ -143,6 +153,15 @@ export function phaseFor(points: Points, games: Games, sets: Sets): Phase {
       return "SetA";
     } else {
       return "SetB";
+    }
+  } else if (
+    Math.max(points.a, points.b) >= 4 &&
+    Math.abs(points.a - points.b) >= 2
+  ) {
+    if (points.a > points.b) {
+      return "GameA";
+    } else {
+      return "GameB";
     }
   } else if (points.a >= 3 && points.b >= 3 && points.a === points.b) {
     return "Deuce";
@@ -162,23 +181,44 @@ export function phaseFor(points: Points, games: Games, sets: Sets): Phase {
 }
 
 export default class Game implements Tennis {
-  private points: Points = { a: 0, b: 0 };
-  private games: Games = { a: 0, b: 0 };
-  private sets: Sets = { a: 0, b: 0 };
+  public points: Points = { a: 0, b: 0 };
+  public games: Games = { a: 0, b: 0 };
+  public sets: Sets = { a: 0, b: 0 };
 
   resetPoints() {
     this.points = { a: 0, b: 0 };
   }
+
+  resetGames() {
+    this.games = { a: 0, b: 0 };
+  }
+
   point(player: Player) {
     this.points = applyPoint(this.points, player);
+
+    const phase = phaseFor(this.points, this.games, this.sets);
+    if (phase == "GameA" || phase == "GameB") {
+      this.game(player);
+      this.resetPoints();
+    }
   }
 
   game(player: Player) {
     this.games = applyGame(this.games, player);
+    const phase = phaseFor(this.points, this.games, this.sets);
+    if (phase == "SetA" || phase == "SetB") {
+      this.set(player);
+      this.resetGames();
+    }
   }
 
   set(player: Player) {
     this.sets = applySet(this.sets, player);
+
+    const phase = phaseFor(this.points, this.games, this.sets);
+    if (phase == "Tiebreaker") {
+      this.resetPoints();
+    }
   }
 
   score(): State | Phase {
