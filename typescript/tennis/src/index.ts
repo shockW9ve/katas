@@ -1,19 +1,23 @@
-import Game, { phaseFor } from "../src/Game/TennisGame.js";
+import Game from "../src/Game/TennisGame.js";
+import Player from "../src/Game/TennisGame.js";
 
 export const hello = () => "Kal Was Flam";
 
 const gaming: Game = new Game();
 let isActive: boolean = true;
 let state;
+let player: Player;
 while (isActive) {
   let num = Math.floor(Math.random() * (2 - 1 + 1)) + 1;
   if (num === 1) {
+    player = "A";
     gaming.point("A");
   } else {
+    player = "B";
     gaming.point("B");
   }
 
-  state = phaseFor(gaming.points, gaming.games, gaming.sets);
+  state = gaming.phaseFor(gaming.points, gaming.games, gaming.sets);
   // if (state === "GameA" || state === "GameB") {
   //   if (state === "GameA") {
   //     gaming.game("A");
