@@ -10,6 +10,23 @@ type Phase =
   | "Tiebreaker"
   | "Match";
 export type Player = "A" | "B";
+export type Event = { type: "PointWon"; by: Player };
+export type MatchState = Readonly<{
+  points: Points;
+  games: Games;
+  sets: Sets;
+  tiebreaker: boolean;
+}>;
+export type Outcome =
+  | "None"
+  // | "PointA"
+  // | "PointB"
+  | "GameA"
+  | "GameB"
+  | "SetA"
+  | "SetB"
+  | "MatchA"
+  | "MatchB";
 export type Points = { a: number; b: number };
 export type Games = { a: number; b: number };
 export type Sets = { a: number; b: number };
@@ -24,6 +41,21 @@ type State = {
 interface Tennis {
   score(): State | Phase;
   point(point: Player): void;
+}
+
+function transition(
+  state: MatchState,
+  event: Event,
+): { next: MatchState; outcome: Outcome } {
+  return {
+    next: {
+      points: { a: 0, b: 0 },
+      games: { a: 0, b: 0 },
+      sets: { a: 0, b: 0 },
+      tiebreaker: false,
+    },
+    outcome: "None",
+  };
 }
 
 export function applyPoint(points: Points, player: Player): Points {
@@ -130,9 +162,11 @@ export function formatScore(
 // }
 
 export default class Game implements Tennis {
+  // TODO make private!
   public points: Points = { a: 0, b: 0 };
   public games: Games = { a: 0, b: 0 };
   public sets: Sets = { a: 0, b: 0 };
+  private _state: MatchState;
 
   constructor() {
     console.log("Game initialized...");
@@ -146,8 +180,23 @@ export default class Game implements Tennis {
     this.games = { a: 0, b: 0 };
   }
 
+  snapshot(): MatchState {
+    return {
+      points: { a: 0, b: 0 },
+      games: { a: 0, b: 0 },
+      sets: { a: 0, b: 0 },
+      tiebreaker: false,
+    };
+  }
+
   point(player: Player) {
     this.points = applyPoint(this.points, player);
+
+    const { next } = transition(this.snapshot(), {
+      type: "PointWon",
+      by: player,
+    });
+    this._state = next;
     // const phase = phaseFor(this, player);
     // if (phase == "GameA" || phase == "GameB") {
     //   this.game(player);
@@ -175,6 +224,7 @@ export default class Game implements Tennis {
     //   }
     // }
   }
+
   phaseFor(points: Points, games: Games, sets: Sets): Phase {
     let timeToReset = true;
     if (Math.max(sets.a, sets.b) >= 3 && Math.abs(sets.a - sets.b) >= 1) {

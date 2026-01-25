@@ -6,14 +6,11 @@ export const hello = () => "Kal Was Flam";
 const gaming: Game = new Game();
 let isActive: boolean = true;
 let state;
-let player: Player;
 while (isActive) {
   let num = Math.floor(Math.random() * (2 - 1 + 1)) + 1;
   if (num === 1) {
-    player = "A";
     gaming.point("A");
   } else {
-    player = "B";
     gaming.point("B");
   }
 
