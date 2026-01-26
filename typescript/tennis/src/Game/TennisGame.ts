@@ -47,11 +47,31 @@ function transition(
   state: MatchState,
   event: Event,
 ): { next: MatchState; outcome: Outcome } {
+  const outcome = phaseFor(
+    state.points,
+    state.games,
+    state.sets,
+    state.tiebreaker,
+  );
+
+  switch (outcome) {
+    case "Normal":
+      break;
+    case "GameA":
+      break;
+    case "GameB":
+      break;
+    case "SetA":
+      break;
+    case "SetB":
+      break;
+  }
+
   return {
     next: {
-      points: { a: 0, b: 0 },
-      games: { a: 0, b: 0 },
-      sets: { a: 0, b: 0 },
+      points: applyPoint(state.points, event.by),
+      games: applyGame(state.games, event.by),
+      sets: applySet(state.sets, event.by),
       tiebreaker: false,
     },
     outcome: "None",
@@ -161,15 +181,84 @@ export function formatScore(
 //   }
 // }
 
+// TODO rename outcome?
+function phaseFor(
+  points: Points,
+  games: Games,
+  sets: Sets,
+  tiebreaker: boolean,
+): Phase {
+  // TODO use tiebreaker
+  let timeToReset = true;
+  if (Math.max(sets.a, sets.b) >= 3 && Math.abs(sets.a - sets.b) >= 1) {
+    return "Match";
+  } else if (games.a >= 6 && games.b >= 6 && games.a === games.b) {
+    if (
+      Math.max(points.a, points.b) >= 7 &&
+      Math.abs(points.a - points.b) >= 2
+    ) {
+      return "Match";
+    }
+
+    // TODO rethink
+    if (timeToReset) {
+      // this.resetPoints();
+      timeToReset = false;
+    }
+    return "Tiebreaker";
+  } else if (
+    Math.max(games.a, games.b) >= 6 &&
+    Math.abs(games.a - games.b) >= 2
+  ) {
+    if (points.a > points.b) {
+      this.set("A");
+      this.resetGames();
+      return "SetA";
+    } else {
+      this.set("B");
+      this.resetGames();
+      return "SetB";
+    }
+  }
+  if (Math.max(points.a, points.b) >= 5 && Math.abs(points.a - points.b) >= 2) {
+    if (points.a > points.b) {
+      this.game("A");
+      this.resetPoints();
+      return "GameA";
+    } else {
+      this.game("B");
+      this.resetPoints();
+      return "GameB";
+    }
+  } else if (points.a >= 3 && points.b >= 3 && points.a === points.b) {
+    return "Deuce";
+  } else if (
+    points.a >= 3 &&
+    points.b >= 3 &&
+    Math.abs(points.a - points.b) === 1
+  ) {
+    if (points.a > points.b) {
+      return "AdvantageA";
+    } else {
+      return "AdvantageB";
+    }
+  } else {
+    return "Normal";
+  }
+}
+
 export default class Game implements Tennis {
   // TODO make private!
   public points: Points = { a: 0, b: 0 };
   public games: Games = { a: 0, b: 0 };
   public sets: Sets = { a: 0, b: 0 };
   private _state: MatchState;
+  private _tiebreaker: boolean = false;
 
   constructor() {
     console.log("Game initialized...");
+    this._state = this.snapshot();
+    // TODO log starting game state
   }
 
   resetPoints() {
@@ -182,10 +271,10 @@ export default class Game implements Tennis {
 
   snapshot(): MatchState {
     return {
-      points: { a: 0, b: 0 },
-      games: { a: 0, b: 0 },
-      sets: { a: 0, b: 0 },
-      tiebreaker: false,
+      points: this.points,
+      games: this.games,
+      sets: this.sets,
+      tiebreaker: this._tiebreaker,
     };
   }
 
@@ -225,6 +314,7 @@ export default class Game implements Tennis {
     // }
   }
 
+  // TODO rename outcome?
   phaseFor(points: Points, games: Games, sets: Sets): Phase {
     let timeToReset = true;
     if (Math.max(sets.a, sets.b) >= 3 && Math.abs(sets.a - sets.b) >= 1) {
