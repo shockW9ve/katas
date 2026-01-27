@@ -69,4 +69,12 @@ describe("No mutation tests", () => {
       expect(game.games).toStrictEqual({ a: 1, b: 0 });
     });
   });
+
+  it.each([])("", () => {
+    // arrange
+    const game = new Game();
+    game.point("A");
+    // act
+    // assert
+  });
 });

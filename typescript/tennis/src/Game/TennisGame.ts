@@ -1,14 +1,4 @@
-type Phase =
-  | "Normal"
-  | "Deuce"
-  | "AdvantageA"
-  | "AdvantageB"
-  | "GameA"
-  | "GameB"
-  | "SetA"
-  | "SetB"
-  | "Tiebreaker"
-  | "Match";
+type Phase = "Normal" | "Deuce" | "AdvantageA" | "AdvantageB" | "Tiebreaker";
 export type Player = "A" | "B";
 export type Event = { type: "PointWon"; by: Player };
 export type MatchState = Readonly<{
@@ -18,15 +8,10 @@ export type MatchState = Readonly<{
   tiebreaker: boolean;
 }>;
 export type Outcome =
-  | "None"
-  // | "PointA"
-  // | "PointB"
-  | "GameA"
-  | "GameB"
-  | "SetA"
-  | "SetB"
-  | "MatchA"
-  | "MatchB";
+  | { kind: "None" }
+  | { kind: "GameWon"; by: Player }
+  | { kind: "SetWon"; by: Player }
+  | { kind: "MatchWon"; by: Player };
 export type Points = { a: number; b: number };
 export type Games = { a: number; b: number };
 export type Sets = { a: number; b: number };
@@ -43,39 +28,20 @@ interface Tennis {
   point(point: Player): void;
 }
 
+function calculate(points: Points, player: Player): Outcome {
+  if (Math.max(points.a, points.b) > 4 && Math.abs(points.a - points.b) >= 2) {
+    return { kind: "GameWon", by: player };
+  } else {
+    return { kind: "None" };
+  }
+}
 function transition(
   state: MatchState,
   event: Event,
 ): { next: MatchState; outcome: Outcome } {
-  const outcome = phaseFor(
-    state.points,
-    state.games,
-    state.sets,
-    state.tiebreaker,
-  );
-
-  switch (outcome) {
-    case "Normal":
-      break;
-    case "GameA":
-      break;
-    case "GameB":
-      break;
-    case "SetA":
-      break;
-    case "SetB":
-      break;
-  }
-
-  return {
-    next: {
-      points: applyPoint(state.points, event.by),
-      games: applyGame(state.games, event.by),
-      sets: applySet(state.sets, event.by),
-      tiebreaker: false,
-    },
-    outcome: "None",
-  };
+  const afterPoints = addPoint(state, event.by, state.tiebreaker);
+  const nextPoints: Points = applyPoint(state.points, event.by);
+  let outcome = calculate(nextPoints, event.by);
 }
 
 export function applyPoint(points: Points, player: Player): Points {
@@ -257,6 +223,7 @@ export default class Game implements Tennis {
 
   constructor() {
     console.log("Game initialized...");
+    console.log("\u{1F600}");
     this._state = this.snapshot();
     // TODO log starting game state
   }
@@ -279,7 +246,7 @@ export default class Game implements Tennis {
   }
 
   point(player: Player) {
-    this.points = applyPoint(this.points, player);
+    // this.points = applyPoint(this.points, player);
 
     const { next } = transition(this.snapshot(), {
       type: "PointWon",
