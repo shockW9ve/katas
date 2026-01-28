@@ -14,7 +14,7 @@ while (isActive) {
     gaming.point("B");
   }
 
-  state = gaming.phaseFor(gaming.points, gaming.games, gaming.sets);
+  // state = gaming.phaseFor();
   // if (state === "GameA" || state === "GameB") {
   //   if (state === "GameA") {
   //     gaming.game("A");
