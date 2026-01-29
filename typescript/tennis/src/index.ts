@@ -14,24 +14,7 @@ while (isActive) {
     gaming.point("B");
   }
 
-  // state = gaming.phaseFor();
-  // if (state === "GameA" || state === "GameB") {
-  //   if (state === "GameA") {
-  //     gaming.game("A");
-  //   } else {
-  //     gaming.game("B");
-  //   }
-  //   gaming.resetPoints();
-  // }
-  // if (state === "SetA" || state === "SetB") {
-  //   if (state === "SetA") {
-  //     gaming.set("A");
-  //   } else {
-  //     gaming.set("B");
-  //   }
-  //   // gaming.resetPoints();
-  // }
-  if (state === "Match") {
+  if (gaming.game()) {
     isActive = false;
 
     console.log("-- Final score ---");

@@ -6,7 +6,7 @@ import Game, {
   applyGame,
   Sets,
   applySet,
-  // phaseFor,
+  phaseFor,
 } from "../src/Game/TennisGame.js";
 
 describe("No mutation tests", () => {
@@ -32,16 +32,20 @@ describe("No mutation tests", () => {
     it("Normal phase", () => {
       const game = new Game();
       game.point("A");
-      const phase = game.phaseFor(game.points, game.games, game.sets);
-      expect(phase).toBe("Normal");
+      const phase = phaseFor(game.snapshot());
+      expect(phase.kind).toBe("Normal");
     });
 
     it("Deuce phase", () => {
       const game = new Game();
-      game.points = { a: 3, b: 4 };
       game.point("A");
-      const phase = game.phaseFor(game.points, game.games, game.sets);
-      expect(phase).toBe("Deuce");
+      game.point("A");
+      game.point("A");
+      game.point("B");
+      game.point("B");
+      game.point("B");
+      const phase = phaseFor(game.snapshot());
+      expect(phase.kind).toBe("Deuce");
     });
 
     it("AdvantageA phase", () => {
@@ -64,16 +68,30 @@ describe("No mutation tests", () => {
       const game = new Game();
       game.points = { a: 5, b: 3 };
       game.point("A");
-      const phase = game.phaseFor(game.points, game.games, game.sets);
+      game.point("A");
+      game.point("A");
+      game.point("A");
+      game.point("B");
+
+      game.point("B");
+      game.point("B");
+      game.point("A");
+      const phase = phaseFor(game.snapshot());
       expect(phase).toBe("GameA");
-      expect(game.games).toStrictEqual({ a: 1, b: 0 });
+      expect(game.snapshot().games).toStrictEqual({ a: 1, b: 0 });
     });
   });
 
-  it.each([])("", () => {
+  it.each([
+    {
+      point: "A",
+      expected: {},
+    },
+    {},
+  ])("", (point, expected) => {
     // arrange
     const game = new Game();
-    game.point("A");
+    game.point(point);
     // act
     // assert
   });
