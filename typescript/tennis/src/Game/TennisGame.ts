@@ -11,6 +11,7 @@ export type MatchState = Readonly<{
 export type Outcome =
   | { kind: "None" }
   | { kind: "GameWon"; by: Player }
+  | { kind: "Tiebreaker"; state: boolean }
   | { kind: "SetWon"; by: Player }
   | { kind: "MatchWon"; by: Player };
 export type Points = { a: number; b: number };
@@ -24,27 +25,29 @@ interface Tennis {
   game(): boolean;
 }
 
-function calculateOutcome(
+export function calculateOutcome(
   points: Points,
   games: Games,
   sets: Sets,
   player: Player,
+  tiebreaker: boolean,
 ): Outcome {
   const GAMES_TO_WIN_SET = 6;
   const POINTS_TO_WIN_GAME = 4;
   const TIEBREAK_POINTS = 7;
   const SETS_TO_WIN_MATCH = 2;
-  // TODO Tiebreaker
-  // else if (games.a >= 6 && games.b >= 6 && games.a === games.b) {
-  //   if (
-  //     Math.max(points.a, points.b) >= 7 &&
-  //     Math.abs(points.a - points.b) >= 2
-  //   ) {
-  //     return "Match";
-  //   }
-  //
-  //   return "Tiebreaker";
-  // }
+  if (games.a >= 6 && games.b >= 6 && games.a === games.b) {
+    tiebreaker = true;
+    if (
+      Math.max(points.a, points.b) >= 7 &&
+      Math.abs(points.a - points.b) >= 2
+    ) {
+      return { kind: "MatchWon", by: player };
+    }
+
+    return { kind: "Tiebreaker", state: tiebreaker };
+  }
+
   if (Math.max(sets.a, sets.b) >= 3 && Math.abs(sets.a - sets.b) >= 1) {
     return { kind: "MatchWon", by: player };
   } else if (
@@ -53,7 +56,7 @@ function calculateOutcome(
   ) {
     return { kind: "SetWon", by: player };
   } else if (
-    Math.max(points.a, points.b) > 4 &&
+    Math.max(points.a, points.b) >= 4 &&
     Math.abs(points.a - points.b) >= 2
   ) {
     return { kind: "GameWon", by: player };
@@ -64,7 +67,6 @@ function calculateOutcome(
 function addPoint(
   state: MatchState,
   eventBy: Player,
-  tiebreaker: boolean,
 ): { next: MatchState; outcome: Outcome } {
   const nextPoints: Points = applyPoint(state.points, eventBy);
   const nextOutcome: Outcome = calculateOutcome(
@@ -72,8 +74,19 @@ function addPoint(
     state.games,
     state.sets,
     eventBy,
+    state.tiebreaker,
   );
-  // TODO tiebreaker
+  if (nextOutcome.kind === "Tiebreaker") {
+    return {
+      next: {
+        points: { a: 0, b: 0 },
+        games: state.games,
+        sets: state.sets,
+        tiebreaker: nextOutcome.state,
+      },
+      outcome: nextOutcome,
+    };
+  }
 
   if (nextOutcome.kind === "MatchWon") {
     return {
@@ -124,7 +137,7 @@ function transition(
   state: MatchState,
   event: Event,
 ): { next: MatchState; outcome: Outcome } {
-  const afterState = addPoint(state, event.by, state.tiebreaker);
+  const afterState = addPoint(state, event.by);
   return afterState;
 }
 
@@ -210,9 +223,12 @@ export default class Game implements Tennis {
       sets: { a: 0, b: 0 },
       tiebreaker: false,
     };
-
-    console.log(`Starting scoreboard ${this.score()}`);
-    console.log(this.score());
+    const { pointsA, pointsB, games, sets, phase } = this.score();
+    console.log(`Starting scoreboard:
+                  points A: ${pointsA} - points B: ${pointsA}
+                  games: ${games.a} : ${games.b}
+                  sets:  ${sets.a}  : ${sets.b}
+                  phase: ${phase.kind} `);
   }
 
   snapshot(): MatchState {
