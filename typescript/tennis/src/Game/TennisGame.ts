@@ -64,7 +64,7 @@ export function calculateOutcome(
     return { kind: "None" };
   }
 }
-function addPoint(
+export function addPoint(
   state: MatchState,
   eventBy: Player,
 ): { next: MatchState; outcome: Outcome } {
