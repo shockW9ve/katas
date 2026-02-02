@@ -124,27 +124,40 @@ describe("No mutation tests", () => {
   // Tiebreaker
   it("Tiebreaker phase", () => {
     // arrange
+    const game = new Game();
+    const games: Games = { a: 6, b: 6 };
     // act
+    game.point("A");
+    game.point("B");
+    game.point("A");
+    game.point("B");
+    game.point("B");
+    game.point("B");
+    game.point("B");
+    game.point("B");
+    game.point("A");
+    game.point("A");
+    game.point("A");
+    game.point("A");
+    let state = game.snapshot();
+    const nextPoints: Points = applyPoint(state.points, "A");
+    const phase = calculateOutcome(
+      nextPoints,
+      games,
+      state.sets,
+      "A",
+      state.tiebreaker,
+    );
+
+    state = game.snapshot();
     // assert
-    // const game = new Game();
-    // game.point("A");
-    // game.point("B");
-    // game.point("A");
-    // game.point("B");
-    // game.point("B");
-    //
-    // const state = game.snapshot();
-    // const nextPoints: Points = applyPoint(state.points, "B");
-    // const phase = calculateOutcome(
-    //   nextPoints,
-    //   state.games,
-    //   state.sets,
-    //   "B",
-    //   state.tiebreaker,
-    // );
-    // expect(phase).toStrictEqual({ kind: "GameWon", by: "B" });
+    expect(phase).toStrictEqual({ kind: "Tiebreaker", state: true });
+
+    expect(state.points).toStrictEqual({ a: 0, b: 0 });
+
+    expect(state.games).toBe({ a: 6, b: 6 });
+    // expect(state.tiebreaker).toBe(true);
   });
-  // Sets
 });
 
 it.each([

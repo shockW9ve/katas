@@ -36,8 +36,14 @@ export function calculateOutcome(
   const POINTS_TO_WIN_GAME = 4;
   const TIEBREAK_POINTS = 7;
   const SETS_TO_WIN_MATCH = 2;
-  if (games.a >= 6 && games.b >= 6 && games.a === games.b) {
-    tiebreaker = true;
+  if (
+    (games.a >= 6 && games.b >= 6 && games.a === games.b) ||
+    tiebreaker === true
+  ) {
+    const isTieBreaker = true;
+    // if (tiebreaker === false) {
+    //   isTieBreaker = true;
+    // }
     if (
       Math.max(points.a, points.b) >= 7 &&
       Math.abs(points.a - points.b) >= 2
@@ -45,7 +51,7 @@ export function calculateOutcome(
       return { kind: "MatchWon", by: player };
     }
 
-    return { kind: "Tiebreaker", state: tiebreaker };
+    return { kind: "Tiebreaker", state: isTieBreaker };
   }
 
   if (Math.max(sets.a, sets.b) >= 3 && Math.abs(sets.a - sets.b) >= 1) {
