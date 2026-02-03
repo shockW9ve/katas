@@ -34,10 +34,13 @@ export function calculateOutcome(
 ): Outcome {
   const GAMES_TO_WIN_SET = 6;
   const POINTS_TO_WIN_GAME = 4;
-  const TIEBREAK_POINTS = 7;
-  const SETS_TO_WIN_MATCH = 2;
+  const TIEBREAK_POINTS_HIGH = 7;
+  const TIEBREAK_POINTS_LOW = 2;
+  const SETS_TO_WIN_MATCH = 3;
   if (
-    (games.a >= 6 && games.b >= 6 && games.a === games.b) ||
+    (games.a >= GAMES_TO_WIN_SET &&
+      games.b >= GAMES_TO_WIN_SET &&
+      games.a === games.b) ||
     tiebreaker === true
   ) {
     const isTieBreaker = true;
@@ -45,24 +48,27 @@ export function calculateOutcome(
     //   isTieBreaker = true;
     // }
     if (
-      Math.max(points.a, points.b) >= 7 &&
-      Math.abs(points.a - points.b) >= 2
+      Math.max(points.a, points.b) >= TIEBREAK_POINTS_HIGH &&
+      Math.abs(points.a - points.b) >= TIEBREAK_POINTS_LOW
     ) {
-      return { kind: "MatchWon", by: player };
+      return { kind: "SetWon", by: player };
     }
 
     return { kind: "Tiebreaker", state: isTieBreaker };
   }
 
-  if (Math.max(sets.a, sets.b) >= 3 && Math.abs(sets.a - sets.b) >= 1) {
+  if (
+    Math.max(sets.a, sets.b) >= SETS_TO_WIN_MATCH &&
+    Math.abs(sets.a - sets.b) >= 1
+  ) {
     return { kind: "MatchWon", by: player };
   } else if (
-    Math.max(games.a, games.b) >= 6 &&
+    Math.max(games.a, games.b) >= GAMES_TO_WIN_SET &&
     Math.abs(games.a - games.b) >= 2
   ) {
     return { kind: "SetWon", by: player };
   } else if (
-    Math.max(points.a, points.b) >= 4 &&
+    Math.max(points.a, points.b) >= POINTS_TO_WIN_GAME &&
     Math.abs(points.a - points.b) >= 2
   ) {
     return { kind: "GameWon", by: player };
@@ -224,8 +230,8 @@ export default class Game implements Tennis {
     console.log("\u{1F600}");
 
     this._state = {
-      points: { a: 0, b: 0 },
-      games: { a: 0, b: 0 },
+      points: { a: 3, b: 2 },
+      games: { a: 5, b: 6 },
       sets: { a: 0, b: 0 },
       tiebreaker: false,
     };

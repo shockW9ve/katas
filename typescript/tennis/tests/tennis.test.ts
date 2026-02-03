@@ -120,43 +120,61 @@ describe("No mutation tests", () => {
     expect(phase).toStrictEqual({ kind: "GameWon", by: "B" });
   });
 
-  // TODO
-  // Tiebreaker
   it("Tiebreaker phase", () => {
     // arrange
     const game = new Game();
-    const games: Games = { a: 6, b: 6 };
+    // const games: Games = { a: 6, b: 6 };
     // act
+    // game.point("A");
+    // game.point("B");
+    // game.point("A");
+    // game.point("B");
+    // game.point("B");
+    // game.point("B");
+    // game.point("B");
+    // game.point("B");
+    // game.point("A");
+    // game.point("A");
+    // game.point("A");
     game.point("A");
-    game.point("B");
-    game.point("A");
-    game.point("B");
-    game.point("B");
-    game.point("B");
-    game.point("B");
-    game.point("B");
-    game.point("A");
-    game.point("A");
-    game.point("A");
-    game.point("A");
+    // let state = {
+    //   points: { a: 4, b: 3 },
+    //   games: { a: 5, b: 6 },
+    //   sets: { a: 0, b: 0 },
+    //   tiebreaker: false,
+    // };
+    // const nextPoints: Points = applyPoint(state.points, "A");
     let state = game.snapshot();
     const nextPoints: Points = applyPoint(state.points, "A");
     const phase = calculateOutcome(
       nextPoints,
-      games,
+      state.games,
       state.sets,
       "A",
       state.tiebreaker,
     );
 
-    state = game.snapshot();
     // assert
     expect(phase).toStrictEqual({ kind: "Tiebreaker", state: true });
+    // expect(state.points).toStrictEqual({ a: 4, b: 3 });
+    expect(state.games).toStrictEqual({ a: 6, b: 6 });
+    game.point("B");
+    game.point("B");
+    game.point("B");
+    game.point("B");
+    game.point("B");
+    // game.point("B");
 
-    expect(state.points).toStrictEqual({ a: 0, b: 0 });
+    game.point("A");
+    game.point("A");
+    game.point("A");
+    game.point("A");
+    game.point("A");
+    game.point("A");
 
-    expect(state.games).toBe({ a: 6, b: 6 });
-    // expect(state.tiebreaker).toBe(true);
+    state = game.snapshot();
+    expect(state.tiebreaker).toBe(true);
+    // expect(state.points).toStrictEqual({ a: 6, b: 6 });
   });
 });
 
