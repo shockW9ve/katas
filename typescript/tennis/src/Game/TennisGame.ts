@@ -8,12 +8,14 @@ export type MatchState = Readonly<{
   sets: Sets;
   tiebreaker: boolean;
 }>;
+
 export type Outcome =
   | { kind: "None" }
+  | { kind: "EnteredTiebreaker" }
   | { kind: "GameWon"; by: Player }
-  | { kind: "Tiebreaker"; state: boolean }
   | { kind: "SetWon"; by: Player }
   | { kind: "MatchWon"; by: Player };
+
 export type Points = { a: number; b: number };
 export type Games = { a: number; b: number };
 export type Sets = { a: number; b: number };
@@ -38,23 +40,20 @@ export function calculateOutcome(
   const TIEBREAK_POINTS_LOW = 2;
   const SETS_TO_WIN_MATCH = 3;
   if (
-    (games.a >= GAMES_TO_WIN_SET &&
-      games.b >= GAMES_TO_WIN_SET &&
-      games.a === games.b) ||
-    tiebreaker === true
+    games.a >= GAMES_TO_WIN_SET &&
+    games.b >= GAMES_TO_WIN_SET &&
+    games.a === games.b &&
+    !tiebreaker
   ) {
-    const isTieBreaker = true;
-    // if (tiebreaker === false) {
-    //   isTieBreaker = true;
-    // }
-    if (
-      Math.max(points.a, points.b) >= TIEBREAK_POINTS_HIGH &&
-      Math.abs(points.a - points.b) >= TIEBREAK_POINTS_LOW
-    ) {
-      return { kind: "SetWon", by: player };
-    }
+    return { kind: "EnteredTiebreaker" };
+  }
 
-    return { kind: "Tiebreaker", state: isTieBreaker };
+  if (tiebreaker) {
+    const wonMatch =
+      Math.max(points.a, points.b) >= TIEBREAK_POINTS_HIGH &&
+      Math.abs(points.a - points.b) >= TIEBREAK_POINTS_LOW;
+
+    wonMatch ? { kind: "SetWon", by: player } : { kind: "None" };
   }
 
   if (
@@ -88,13 +87,13 @@ export function addPoint(
     eventBy,
     state.tiebreaker,
   );
-  if (nextOutcome.kind === "Tiebreaker") {
+  if (nextOutcome.kind === "EnteredTiebreaker") {
     return {
       next: {
         points: { a: 0, b: 0 },
         games: state.games,
         sets: state.sets,
-        tiebreaker: nextOutcome.state,
+        tiebreaker: true,
       },
       outcome: nextOutcome,
     };
@@ -112,23 +111,27 @@ export function addPoint(
     };
   } else if (nextOutcome.kind === "SetWon") {
     const setState = applySet(state.sets, eventBy);
+    const resetPoints = isGameWin(state.points);
+    const resetGames = isSetWin(state.games);
     return {
       next: {
-        points: { a: 0, b: 0 },
-        games: { a: 0, b: 0 },
+        points: resetPoints,
+        games: resetGames,
         sets: setState,
-        tiebreaker: state.tiebreaker,
+        tiebreaker: false,
       },
       outcome: nextOutcome,
     };
   } else if (nextOutcome.kind === "GameWon") {
+    const enteringTiebreaker = state.games.a === 6 && state.games.b === 6;
     const gameState = applyGame(state.games, eventBy);
+    const resetPoints = isGameWin(state.points);
     return {
       next: {
         points: { a: 0, b: 0 },
         games: gameState,
         sets: state.sets,
-        tiebreaker: state.tiebreaker,
+        tiebreaker: enteringTiebreaker,
       },
       outcome: nextOutcome,
     };
@@ -222,19 +225,14 @@ export function phaseFor(state: MatchState): Phase {
 
 export default class Game implements Tennis {
   private _state: MatchState;
-  private _tiebreaker: boolean = false;
-  private _isGame: boolean = false;
+  private _matchFinished: boolean = false;
 
-  constructor() {
+  constructor(initial: MatchState) {
     console.log("Game initialized...");
     console.log("\u{1F600}");
 
-    this._state = {
-      points: { a: 3, b: 2 },
-      games: { a: 5, b: 6 },
-      sets: { a: 0, b: 0 },
-      tiebreaker: false,
-    };
+    this._state = initial;
+
     const { pointsA, pointsB, games, sets, phase } = this.score();
     console.log(`Starting scoreboard:
                   points A: ${pointsA} - points B: ${pointsA}
@@ -269,6 +267,6 @@ export default class Game implements Tennis {
   }
 
   game(): boolean {
-    return this._isGame;
+    return this._matchFinished;
   }
 }
