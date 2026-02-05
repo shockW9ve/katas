@@ -224,7 +224,9 @@ export function formatScore(state: MatchState, phase: Phase): ScoreView {
 }
 
 export function phaseFor(state: MatchState): Phase {
-  if (
+  if (state.games.a >= GAMES_TO_WIN_SET && state.games.b >= GAMES_TO_WIN_SET) {
+    return { kind: "Tiebreaker" };
+  } else if (
     state.points.a >= 3 &&
     state.points.b >= 3 &&
     state.points.a === state.points.b

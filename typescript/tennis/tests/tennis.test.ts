@@ -13,6 +13,7 @@ import Game, {
 } from "../src/Game/TennisGame.js";
 
 describe("No mutation tests", () => {
+  // objects
   it("New point object", () => {
     const p = Object.freeze({ a: 0, b: 0 }) as Points;
     const next = applyPoint(p, "A");
@@ -30,74 +31,96 @@ describe("No mutation tests", () => {
     const next = applySet(p, "A");
     expect(next).toStrictEqual({ a: 1, b: 0 });
   });
+});
 
-  describe("Phase tests", () => {
-    it("Normal phase", () => {
-      const game = new Game();
-      game.point("A");
-      const phase = phaseFor(game.snapshot());
-      expect(phase.kind).toBe("Normal");
-    });
+// phases
+describe("Phase tests", () => {
+  it("Normal phase", () => {
+    const game = new Game();
+    game.point("A");
+    const phase = phaseFor(game.snapshot());
+    expect(phase.kind).toBe("Normal");
+  });
 
-    it("Deuce phase", () => {
-      const game = new Game();
-      game.point("A");
-      game.point("A");
-      game.point("A");
-      game.point("B");
-      game.point("B");
-      game.point("B");
-      const phase = phaseFor(game.snapshot());
-      expect(phase.kind).toBe("Deuce");
-    });
+  it("Deuce phase", () => {
+    const game = new Game();
+    game.point("A");
+    game.point("A");
+    game.point("A");
+    game.point("B");
+    game.point("B");
+    game.point("B");
+    const phase = phaseFor(game.snapshot());
+    expect(phase.kind).toBe("Deuce");
+  });
 
-    it("AdvantageA phase", () => {
-      const game = new Game();
-      game.point("A");
-      game.point("A");
-      game.point("A");
-      game.point("B");
-      game.point("B");
-      game.point("B");
-      game.point("A");
-      const phase = phaseFor(game.snapshot());
-      expect(phase.kind).toBe("Advantage");
-      expect(phase.who).toBe("A");
-    });
+  it("AdvantageA phase", () => {
+    const game = new Game();
+    game.point("A");
+    game.point("A");
+    game.point("A");
+    game.point("B");
+    game.point("B");
+    game.point("B");
+    game.point("A");
+    const phase = phaseFor(game.snapshot());
+    expect(phase.kind).toBe("Advantage");
+    expect(phase.who).toBe("A");
+  });
 
-    it("AdvantageB phase", () => {
-      const game = new Game();
-      game.point("A");
-      game.point("A");
-      game.point("A");
-      game.point("B");
-      game.point("B");
-      game.point("B");
-      game.point("B");
-      const phase = phaseFor(game.snapshot());
-      expect(phase.kind).toBe("Advantage");
-      expect(phase.who).toBe("B");
-    });
+  it("AdvantageB phase", () => {
+    const game = new Game();
+    game.point("A");
+    game.point("A");
+    game.point("A");
+    game.point("B");
+    game.point("B");
+    game.point("B");
+    game.point("B");
+    const phase = phaseFor(game.snapshot());
+    expect(phase.kind).toBe("Advantage");
+    expect(phase.who).toBe("B");
+  });
 
-    it("GameA phase", () => {
-      const game = new Game();
-      game.point("A");
-      game.point("A");
-      game.point("A");
-      game.point("B");
-      game.point("B");
+  it("Tiebreaker phase", () => {
+    // arrange
+    const matchState = {
+      points: { a: 3, b: 2 },
+      games: { a: 5, b: 6 },
+      sets: { a: 0, b: 0 },
+      tiebreaker: false,
+    };
+    const game = new Game(matchState);
+    // act
+    game.point("A");
+    const phase = phaseFor(game.snapshot());
+    // assert
+    expect(phase.kind).toBe("Tiebreaker");
+  });
+});
 
-      const state = game.snapshot();
-      const nextPoints: Points = applyPoint(state.points, "A");
-      const phase = calculateOutcome(
-        nextPoints,
-        state.games,
-        state.sets,
-        "A",
-        state.tiebreaker,
-      );
-      expect(phase).toStrictEqual({ kind: "GameWon", by: "A" });
-    });
+// outcomes
+describe("Outcome tests", () => {
+  // todo none
+
+  it("GameA phase", () => {
+    const game = new Game();
+    game.point("A");
+    game.point("A");
+    game.point("A");
+    game.point("B");
+    game.point("B");
+
+    const state = game.snapshot();
+    const nextPoints: Points = applyPoint(state.points, "A");
+    const phase = calculateOutcome(
+      nextPoints,
+      state.games,
+      state.sets,
+      "A",
+      state.tiebreaker,
+    );
+    expect(phase).toStrictEqual({ kind: "GameWon", by: "A" });
   });
 
   it("GameB phase", () => {
@@ -120,64 +143,29 @@ describe("No mutation tests", () => {
     expect(phase).toStrictEqual({ kind: "GameWon", by: "B" });
   });
 
+  // todo set won
+  // todo entered tiebreaker
+});
+
+// score
+describe("Score tests", () => {
   it("Tiebreaker phase", () => {
     // arrange
-    const game = new Game();
-    // const games: Games = { a: 6, b: 6 };
     // act
-    // game.point("A");
-    // game.point("B");
-    // game.point("A");
-    // game.point("B");
-    // game.point("B");
-    // game.point("B");
-    // game.point("B");
-    // game.point("B");
-    // game.point("A");
-    // game.point("A");
-    // game.point("A");
-    game.point("A");
-    // let state = {
-    //   points: { a: 4, b: 3 },
-    //   games: { a: 5, b: 6 },
-    //   sets: { a: 0, b: 0 },
-    //   tiebreaker: false,
-    // };
-    // const nextPoints: Points = applyPoint(state.points, "A");
-    let state = game.snapshot();
-    const nextPoints: Points = applyPoint(state.points, "A");
-    const phase = calculateOutcome(
-      nextPoints,
-      state.games,
-      state.sets,
-      "A",
-      state.tiebreaker,
-    );
-
     // assert
-    expect(phase).toStrictEqual({ kind: "Tiebreaker", state: true });
-    // expect(state.points).toStrictEqual({ a: 4, b: 3 });
-    expect(state.games).toStrictEqual({ a: 6, b: 6 });
-    game.point("B");
-    game.point("B");
-    game.point("B");
-    game.point("B");
-    game.point("B");
-    // game.point("B");
-
-    game.point("A");
-    game.point("A");
-    game.point("A");
-    game.point("A");
-    game.point("A");
-    game.point("A");
-
-    state = game.snapshot();
-    expect(state.tiebreaker).toBe(true);
-    // expect(state.points).toStrictEqual({ a: 6, b: 6 });
   });
 });
 
+// show score
+describe("Formatted score tests", () => {
+  it("Tiebreaker phase", () => {
+    // arrange
+    // act
+    // assert
+  });
+});
+
+// each test run
 it.each([
   [
     {
