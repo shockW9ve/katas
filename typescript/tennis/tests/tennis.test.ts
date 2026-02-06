@@ -103,7 +103,7 @@ describe("Phase tests", () => {
 describe("Outcome tests", () => {
   // todo none
 
-  it("GameA phase", () => {
+  it("GameA outcome", () => {
     const game = new Game();
     game.point("A");
     game.point("A");
@@ -123,7 +123,7 @@ describe("Outcome tests", () => {
     expect(phase).toStrictEqual({ kind: "GameWon", by: "A" });
   });
 
-  it("GameB phase", () => {
+  it("GameB outcome", () => {
     const game = new Game();
     game.point("A");
     game.point("B");
@@ -143,7 +143,54 @@ describe("Outcome tests", () => {
     expect(phase).toStrictEqual({ kind: "GameWon", by: "B" });
   });
 
-  // todo set won
+  it("SetWon by B outcome", () => {
+    // arrange
+    const matchState = {
+      points: { a: 2, b: 3 },
+      games: { a: 4, b: 5 },
+      sets: { a: 0, b: 0 },
+      tiebreaker: false,
+    };
+
+    const game = new Game(matchState);
+    // act
+    const state = game.snapshot();
+    const nextPoints = applyPoint(state.points, "B");
+    const outcome = calculateOutcome(
+      nextPoints,
+      state.games,
+      state.sets,
+      "B",
+      state.tiebreaker,
+    );
+    // assert
+    expect(outcome).toStrictEqual({ kind: "SetWon", by: "B" });
+  });
+
+  it("SetWon by A outcome", () => {
+    // arrange
+    const matchState = {
+      points: { a: 4, b: 2 },
+      games: { a: 5, b: 4 },
+      sets: { a: 0, b: 0 },
+      tiebreaker: false,
+    };
+
+    const game = new Game(matchState);
+    // act
+    const state = game.snapshot();
+    const nextPoints = applyPoint(state.points, "A");
+    const outcome = calculateOutcome(
+      nextPoints,
+      state.games,
+      state.sets,
+      "A",
+      state.tiebreaker,
+    );
+    // assert
+    expect(outcome).toStrictEqual({ kind: "SetWon", by: "A" });
+  });
+
   // todo entered tiebreaker
 });
 
