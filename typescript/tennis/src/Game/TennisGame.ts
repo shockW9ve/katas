@@ -146,8 +146,33 @@ export function addPoint(
       outcome: nextOutcome,
     };
   } else if (nextOutcome.kind === "GameWon") {
-    const enteringTiebreaker = state.games.a === 6 && state.games.b === 6;
     const gameState = applyGame(state.games, eventBy);
+    const enteringTiebreaker = gameState.a === 6 && gameState.b === 6;
+    if (enteringTiebreaker) {
+      return {
+        next: {
+          points: { a: 0, b: 0 },
+          games: gameState,
+          sets: state.sets,
+          tiebreaker: enteringTiebreaker,
+        },
+        outcome: { kind: "EnteredTiebreaker" },
+      };
+    }
+
+    const gameWinGivesSet = isSetWin(gameState);
+    if (gameWinGivesSet) {
+      const setState = applySet(state.sets, eventBy);
+      return {
+        next: {
+          points: { a: 0, b: 0 },
+          games: { a: 0, b: 0 },
+          sets: setState,
+          tiebreaker: enteringTiebreaker,
+        },
+        outcome: { kind: "SetWon", by: eventBy },
+      };
+    }
     return {
       next: {
         points: { a: 0, b: 0 },
@@ -265,21 +290,15 @@ export default class Game implements Tennis {
         tiebreaker: false,
       };
     }
-
-    const { pointsA, pointsB, games, sets, phase } = this.score();
-    console.log(`Starting scoreboard:
-                  points A: ${pointsA} - points B: ${pointsA}
-                  games: ${games.a} : ${games.b}
-                  sets:  ${sets.a}  : ${sets.b}
-                  phase: ${phase.kind} `);
   }
 
   snapshot(): MatchState {
+    const { points, games, sets, tiebreaker } = this._state;
     return {
-      points: this._state.points,
-      games: this._state.games,
-      sets: this._state.sets,
-      tiebreaker: this._state.tiebreaker,
+      points: { ...points },
+      games: { ...games },
+      sets: { ...sets },
+      tiebreaker: tiebreaker,
     };
   }
 
