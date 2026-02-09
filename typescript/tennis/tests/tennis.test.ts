@@ -327,8 +327,26 @@ describe("Outcome tests", () => {
   });
 });
 
-// score
+// phaseFor
 describe("Score tests", () => {
+  it("Normal phase", () => {
+    // arrange
+    const matchState = {
+      points: { a: 2, b: 1 },
+      games: { a: 3, b: 3 },
+      sets: { a: 0, b: 0 },
+      tiebreaker: true,
+    };
+    const game = new Game(matchState);
+    // act
+    const phase = phaseFor(matchState);
+    // assert
+    expect(phase).toStrictEqual({ kind: "Normal", who: "A" });
+  });
+});
+
+// score
+describe("Formatted score tests", () => {
   it("Tiebreaker phase", () => {
     // arrange
     const matchState = {
@@ -340,15 +358,6 @@ describe("Score tests", () => {
     const game = new Game(matchState);
     // act
     game.score();
-    // assert
-  });
-});
-
-// show score
-describe("Formatted score tests", () => {
-  it("Tiebreaker phase", () => {
-    // arrange
-    // act
     // assert
   });
 });
