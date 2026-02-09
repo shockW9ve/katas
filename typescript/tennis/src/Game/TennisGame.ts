@@ -136,6 +136,7 @@ export function addPoint(
     };
   } else if (nextOutcome.kind === "SetWon") {
     const setState = applySet(state.sets, eventBy);
+
     return {
       next: {
         points: { a: 0, b: 0 },
@@ -163,6 +164,19 @@ export function addPoint(
     const gameWinGivesSet = isSetWin(gameState);
     if (gameWinGivesSet) {
       const setState = applySet(state.sets, eventBy);
+
+      const setWinGivesMatch = isMatchWon(setState);
+      if (setWinGivesMatch) {
+        return {
+          next: {
+            points: state.points,
+            games: gameState,
+            sets: setState,
+            tiebreaker: state.tiebreaker,
+          },
+          outcome: { kind: "MatchWon", by: eventBy },
+        };
+      }
       return {
         next: {
           points: { a: 0, b: 0 },
