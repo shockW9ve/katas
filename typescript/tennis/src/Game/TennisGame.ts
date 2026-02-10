@@ -1,5 +1,5 @@
-type PhaseKind = "Normal" | "Deuce" | "Advantage" | "Tiebreaker";
-type Phase = { kind: PhaseKind; who?: Player };
+export type PhaseKind = "Normal" | "Deuce" | "Advantage" | "Tiebreaker";
+export type Phase = { kind: PhaseKind; who?: Player };
 
 export type Player = "A" | "B";
 export type Event = { type: "PointWon"; by: Player };
@@ -247,6 +247,8 @@ export function formatScore(state: MatchState, phase: Phase): ScoreView {
   const pointArray: Array<string> = ["0", "15", "30", "40"];
   if (phase.kind === "Tiebreaker") {
     return {
+      pointsA: state.points.a.toString(),
+      pointsB: state.points.b.toString(),
       games: { a: state.games.a, b: state.games.b },
       sets: { a: state.sets.a, b: state.sets.b },
       phase: phase,

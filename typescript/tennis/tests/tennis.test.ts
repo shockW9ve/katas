@@ -7,7 +7,10 @@ import Game, {
   applyGame,
   Sets,
   applySet,
+  Phase,
+  PhaseKind,
   phaseFor,
+  formatScore,
   calculateOutcome,
   Player,
 } from "../src/Game/TennisGame.js";
@@ -337,28 +340,166 @@ describe("Score tests", () => {
       sets: { a: 0, b: 0 },
       tiebreaker: true,
     };
-    const game = new Game(matchState);
     // act
     const phase = phaseFor(matchState);
     // assert
-    expect(phase).toStrictEqual({ kind: "Normal", who: "A" });
+    expect(phase).toStrictEqual({ kind: "Normal" });
+  });
+
+  it("Deuce phase", () => {
+    // arrange
+    const matchState = {
+      points: { a: 3, b: 3 },
+      games: { a: 3, b: 3 },
+      sets: { a: 0, b: 0 },
+      tiebreaker: true,
+    };
+    // act
+    const phase = phaseFor(matchState);
+    // assert
+    expect(phase).toStrictEqual({ kind: "Deuce" });
+  });
+
+  it("Advantage A phase", () => {
+    // arrange
+    const matchState = {
+      points: { a: 4, b: 3 },
+      games: { a: 3, b: 3 },
+      sets: { a: 0, b: 0 },
+      tiebreaker: true,
+    };
+    // act
+    const phase = phaseFor(matchState);
+    // assert
+    expect(phase).toStrictEqual({ kind: "Advantage", who: "A" });
+  });
+
+  it("Advantage B phase", () => {
+    // arrange
+    const matchState = {
+      points: { a: 3, b: 4 },
+      games: { a: 3, b: 3 },
+      sets: { a: 0, b: 0 },
+      tiebreaker: true,
+    };
+    // act
+    const phase = phaseFor(matchState);
+    // assert
+    expect(phase).toStrictEqual({ kind: "Advantage", who: "B" });
+  });
+
+  it("Tiebreaker phase", () => {
+    // arrange
+    const matchState = {
+      points: { a: 0, b: 0 },
+      games: { a: 6, b: 6 },
+      sets: { a: 0, b: 0 },
+      tiebreaker: true,
+    };
+    // act
+    const phase = phaseFor(matchState);
+    // assert
+    expect(phase).toStrictEqual({ kind: "Tiebreaker" });
   });
 });
 
 // score
 describe("Formatted score tests", () => {
-  it("Tiebreaker phase", () => {
+  it("Normal 15 score", () => {
     // arrange
+    //{
+    //   games: { a: state.games.a, b: state.games.b },
+    //   sets: { a: state.sets.a, b: state.sets.b },
+    //   phase: phase,
+    // };
+    //
+    // type PhaseKind = "Normal" | "Deuce" | "Advantage" | "Tiebreaker";
+    // type Phase = { kind: PhaseKind; who?: Player };
+
     const matchState = {
-      points: { a: 5, b: 6 },
-      games: { a: 6, b: 6 },
-      sets: { a: 0, b: 0 },
+      points: { a: 1, b: 0 },
+      games: { a: 1, b: 1 },
+      sets: { a: 1, b: 1 },
       tiebreaker: true,
     };
-    const game = new Game(matchState);
+    const phaseKind: PhaseKind = "Normal";
+    const phase: Phase = { kind: phaseKind };
     // act
-    game.score();
+    const score = formatScore(matchState, phase);
     // assert
+    expect(score).toStrictEqual({
+      pointsA: "15",
+      pointsB: "0",
+      games: { a: 1, b: 1 },
+      sets: { a: 1, b: 1 },
+      phase: { kind: "Normal" },
+    });
+  });
+
+  it("Normal 30 score", () => {
+    // arrange
+    const matchState = {
+      points: { a: 1, b: 2 },
+      games: { a: 1, b: 1 },
+      sets: { a: 1, b: 1 },
+      tiebreaker: true,
+    };
+    const phaseKind: PhaseKind = "Normal";
+    const phase: Phase = { kind: phaseKind };
+    // act
+    const score = formatScore(matchState, phase);
+    // assert
+    expect(score).toStrictEqual({
+      pointsA: "15",
+      pointsB: "30",
+      games: { a: 1, b: 1 },
+      sets: { a: 1, b: 1 },
+      phase: { kind: "Normal" },
+    });
+  });
+
+  it("Normal 40 score", () => {
+    // arrange
+    const matchState = {
+      points: { a: 3, b: 2 },
+      games: { a: 1, b: 1 },
+      sets: { a: 1, b: 1 },
+      tiebreaker: true,
+    };
+    const phaseKind: PhaseKind = "Normal";
+    const phase: Phase = { kind: phaseKind };
+    // act
+    const score = formatScore(matchState, phase);
+    // assert
+    expect(score).toStrictEqual({
+      pointsA: "40",
+      pointsB: "30",
+      games: { a: 1, b: 1 },
+      sets: { a: 1, b: 1 },
+      phase: { kind: "Normal" },
+    });
+  });
+
+  it("Tiebreaker score", () => {
+    // arrange
+    const matchState = {
+      points: { a: 5, b: 5 },
+      games: { a: 6, b: 6 },
+      sets: { a: 1, b: 1 },
+      tiebreaker: true,
+    };
+    const phaseKind: PhaseKind = "Tiebreaker";
+    const phase: Phase = { kind: phaseKind };
+    // act
+    const score = formatScore(matchState, phase);
+    // assert
+    expect(score).toStrictEqual({
+      pointsA: "5",
+      pointsB: "5",
+      games: { a: 6, b: 6 },
+      sets: { a: 1, b: 1 },
+      phase: { kind: "Tiebreaker" },
+    });
   });
 });
 
