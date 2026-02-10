@@ -407,15 +407,6 @@ describe("Score tests", () => {
 describe("Formatted score tests", () => {
   it("Normal 15 score", () => {
     // arrange
-    //{
-    //   games: { a: state.games.a, b: state.games.b },
-    //   sets: { a: state.sets.a, b: state.sets.b },
-    //   phase: phase,
-    // };
-    //
-    // type PhaseKind = "Normal" | "Deuce" | "Advantage" | "Tiebreaker";
-    // type Phase = { kind: PhaseKind; who?: Player };
-
     const matchState = {
       points: { a: 1, b: 0 },
       games: { a: 1, b: 1 },
@@ -480,6 +471,50 @@ describe("Formatted score tests", () => {
     });
   });
 
+  //TODO: Deuce and Advantage shows undefined when played
+  it("Deuce score", () => {
+    // arrange
+    const matchState = {
+      points: { a: 5, b: 5 },
+      games: { a: 6, b: 6 },
+      sets: { a: 1, b: 1 },
+      tiebreaker: true,
+    };
+    const phaseKind: PhaseKind = "Tiebreaker";
+    const phase: Phase = { kind: phaseKind };
+    // act
+    const score = formatScore(matchState, phase);
+    // assert
+    expect(score).toStrictEqual({
+      pointsA: "5",
+      pointsB: "5",
+      games: { a: 6, b: 6 },
+      sets: { a: 1, b: 1 },
+      phase: { kind: "Tiebreaker" },
+    });
+  });
+
+  it("Advantage score", () => {
+    // arrange
+    const matchState = {
+      points: { a: 5, b: 5 },
+      games: { a: 6, b: 6 },
+      sets: { a: 1, b: 1 },
+      tiebreaker: true,
+    };
+    const phaseKind: PhaseKind = "Tiebreaker";
+    const phase: Phase = { kind: phaseKind };
+    // act
+    const score = formatScore(matchState, phase);
+    // assert
+    expect(score).toStrictEqual({
+      pointsA: "5",
+      pointsB: "5",
+      games: { a: 6, b: 6 },
+      sets: { a: 1, b: 1 },
+      phase: { kind: "Tiebreaker" },
+    });
+  });
   it("Tiebreaker score", () => {
     // arrange
     const matchState = {
