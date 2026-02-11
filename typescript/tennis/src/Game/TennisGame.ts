@@ -25,7 +25,7 @@ interface Tennis {
   score(): ScoreView;
   snapshot(): MatchState;
   point(point: Player): void;
-  game(): boolean;
+  isMatchFinished(): boolean;
 }
 
 const GAMES_TO_WIN_SET = 6;
@@ -41,10 +41,6 @@ export function calculateOutcome(
   player: Player,
   tiebreaker: boolean,
 ): Outcome {
-  if (enterTiebreaker(games, tiebreaker)) {
-    return { kind: "EnteredTiebreaker" };
-  }
-
   if (tiebreaker) {
     const wonMatch = inTiebreaker(points);
 
@@ -112,17 +108,6 @@ export function addPoint(
     eventBy,
     state.tiebreaker,
   );
-  if (nextOutcome.kind === "EnteredTiebreaker") {
-    return {
-      next: {
-        points: { a: 0, b: 0 },
-        games: state.games,
-        sets: state.sets,
-        tiebreaker: true,
-      },
-      outcome: nextOutcome,
-    };
-  }
 
   if (nextOutcome.kind === "MatchWon") {
     return {
@@ -253,6 +238,20 @@ export function formatScore(state: MatchState, phase: Phase): ScoreView {
       sets: { a: state.sets.a, b: state.sets.b },
       phase: phase,
     };
+  } else if (phase.kind === "Deuce") {
+    return {
+      pointsA: pointArray[3],
+      pointsB: pointArray[3],
+      games: { a: state.games.a, b: state.games.b },
+      sets: { a: state.sets.a, b: state.sets.b },
+      phase: phase,
+    };
+  } else if (phase.kind === "Advantage") {
+    return {
+      games: { a: state.games.a, b: state.games.b },
+      sets: { a: state.sets.a, b: state.sets.b },
+      phase: phase,
+    };
   } else {
     return {
       pointsA: pointArray[state.points.a],
@@ -265,7 +264,8 @@ export function formatScore(state: MatchState, phase: Phase): ScoreView {
 }
 
 export function phaseFor(state: MatchState): Phase {
-  if (state.games.a >= GAMES_TO_WIN_SET && state.games.b >= GAMES_TO_WIN_SET) {
+  // if (state.games.a >= GAMES_TO_WIN_SET && state.games.b >= GAMES_TO_WIN_SET) {
+  if (state.tiebreaker) {
     return { kind: "Tiebreaker" };
   } else if (
     state.points.a >= 3 &&
@@ -334,7 +334,7 @@ export default class Game implements Tennis {
     return formatScore(this._state, phase);
   }
 
-  game(): boolean {
+  isMatchFinished(): boolean {
     return this._isMatchFinished;
   }
 }

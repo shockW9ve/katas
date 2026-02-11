@@ -14,7 +14,7 @@ while (isActive) {
     gaming.point("B");
   }
 
-  if (gaming.game()) {
+  if (gaming.isMatchFinished()) {
     isActive = false;
 
     console.log("-- Final score ---");

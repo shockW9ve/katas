@@ -80,6 +80,7 @@ describe("Phase tests", () => {
     game.point("B");
     game.point("B");
     game.point("B");
+
     const phase = phaseFor(game.snapshot());
     expect(phase.kind).toBe("Advantage");
     expect(phase.who).toBe("B");
@@ -105,6 +106,41 @@ describe("Phase tests", () => {
 // outcomes
 describe("Outcome tests", () => {
   // todo none
+
+  it("None outcome", () => {
+    const game = new Game();
+
+    const state = game.snapshot();
+    const nextPoints: Points = applyPoint(state.points, "A");
+    const phase = calculateOutcome(
+      nextPoints,
+      state.games,
+      state.sets,
+      "A",
+      state.tiebreaker,
+    );
+    expect(phase).toStrictEqual({ kind: "None" });
+  });
+
+  it("Tiebreaker flag gives SetWon outcome", () => {
+    const matchState = {
+      points: { a: 6, b: 4 },
+      games: { a: 6, b: 6 },
+      sets: { a: 0, b: 0 },
+      tiebreaker: false,
+    };
+    const game = new Game(matchState);
+    const state = game.snapshot();
+    const nextPoints: Points = applyPoint(state.points, "A");
+    const phase = calculateOutcome(
+      nextPoints,
+      state.games,
+      state.sets,
+      "A",
+      true,
+    );
+    expect(phase).toStrictEqual({ kind: "SetWon", by: "A" });
+  });
 
   it("GameA outcome", () => {
     const game = new Game();
@@ -338,7 +374,7 @@ describe("Score tests", () => {
       points: { a: 2, b: 1 },
       games: { a: 3, b: 3 },
       sets: { a: 0, b: 0 },
-      tiebreaker: true,
+      tiebreaker: false,
     };
     // act
     const phase = phaseFor(matchState);
@@ -352,7 +388,7 @@ describe("Score tests", () => {
       points: { a: 3, b: 3 },
       games: { a: 3, b: 3 },
       sets: { a: 0, b: 0 },
-      tiebreaker: true,
+      tiebreaker: false,
     };
     // act
     const phase = phaseFor(matchState);
@@ -366,7 +402,7 @@ describe("Score tests", () => {
       points: { a: 4, b: 3 },
       games: { a: 3, b: 3 },
       sets: { a: 0, b: 0 },
-      tiebreaker: true,
+      tiebreaker: false,
     };
     // act
     const phase = phaseFor(matchState);
@@ -380,7 +416,7 @@ describe("Score tests", () => {
       points: { a: 3, b: 4 },
       games: { a: 3, b: 3 },
       sets: { a: 0, b: 0 },
-      tiebreaker: true,
+      tiebreaker: false,
     };
     // act
     const phase = phaseFor(matchState);
@@ -471,26 +507,25 @@ describe("Formatted score tests", () => {
     });
   });
 
-  //TODO: Deuce and Advantage shows undefined when played
   it("Deuce score", () => {
     // arrange
     const matchState = {
-      points: { a: 5, b: 5 },
-      games: { a: 6, b: 6 },
+      points: { a: 3, b: 3 },
+      games: { a: 3, b: 3 },
       sets: { a: 1, b: 1 },
       tiebreaker: true,
     };
-    const phaseKind: PhaseKind = "Tiebreaker";
+    const phaseKind: PhaseKind = "Deuce";
     const phase: Phase = { kind: phaseKind };
     // act
     const score = formatScore(matchState, phase);
     // assert
     expect(score).toStrictEqual({
-      pointsA: "5",
-      pointsB: "5",
-      games: { a: 6, b: 6 },
+      pointsA: "40",
+      pointsB: "40",
+      games: { a: 3, b: 3 },
       sets: { a: 1, b: 1 },
-      phase: { kind: "Tiebreaker" },
+      phase: { kind: "Deuce" },
     });
   });
 
@@ -515,6 +550,7 @@ describe("Formatted score tests", () => {
       phase: { kind: "Tiebreaker" },
     });
   });
+
   it("Tiebreaker score", () => {
     // arrange
     const matchState = {
