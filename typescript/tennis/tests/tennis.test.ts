@@ -12,7 +12,11 @@ import Game, {
   phaseFor,
   formatScore,
   calculateOutcome,
-  Player,
+  isGameWin,
+  isSetWin,
+  isMatchWon,
+  enterTiebreaker,
+  inTiebreaker,
 } from "../src/Game/TennisGame.js";
 
 describe("No mutation tests", () => {
@@ -105,8 +109,6 @@ describe("Phase tests", () => {
 
 // outcomes
 describe("Outcome tests", () => {
-  // todo none
-
   it("None outcome", () => {
     const game = new Game();
 
@@ -364,6 +366,61 @@ describe("Outcome tests", () => {
     });
     expect(result.outcome).toStrictEqual({ kind: "MatchWon", by: "A" });
   });
+
+  it("calculateOutcome when tiebreaker=true and not won -> None", () => {
+    const outcome = calculateOutcome(
+      { a: 7, b: 6 }, // not enough lead
+      { a: 0, b: 0 },
+      { a: 0, b: 0 },
+      "A",
+      true,
+    );
+    expect(outcome).toStrictEqual({ kind: "None" });
+  });
+
+  it("calculateOutcome when tiebreaker=true uses tiebreaker rules", () => {
+    const outcome = calculateOutcome(
+      { a: 7, b: 5 }, // would win TB -> SetWon
+      { a: 0, b: 0 },
+      { a: 0, b: 0 },
+      "A",
+      true,
+    );
+    expect(outcome).toStrictEqual({ kind: "SetWon", by: "A" });
+  });
+
+  it("calculateOutcome -> GameWon (isolated)", () => {
+    const outcome = calculateOutcome(
+      { a: 4, b: 2 }, // game
+      { a: 0, b: 0 }, // not set
+      { a: 0, b: 0 }, // not match
+      "A",
+      false,
+    );
+    expect(outcome).toStrictEqual({ kind: "GameWon", by: "A" });
+  });
+
+  it("calculateOutcome -> SetWon (isolated)", () => {
+    const outcome = calculateOutcome(
+      { a: 0, b: 0 }, // not game
+      { a: 6, b: 4 }, // set
+      { a: 0, b: 0 }, // not match
+      "A",
+      false,
+    );
+    expect(outcome).toStrictEqual({ kind: "SetWon", by: "A" });
+  });
+
+  it("calculateOutcome -> MatchWon (isolated)", () => {
+    const outcome = calculateOutcome(
+      { a: 0, b: 0 }, // not game
+      { a: 0, b: 0 }, // not set
+      { a: 3, b: 2 }, // match
+      "A",
+      false,
+    );
+    expect(outcome).toStrictEqual({ kind: "MatchWon", by: "A" });
+  });
 });
 
 // phaseFor
@@ -574,7 +631,74 @@ describe("Formatted score tests", () => {
   });
 });
 
-// each test run
+const gameWinCases: Array<[Points, boolean]> = [
+  [{ a: 4, b: 2 }, true], // 4–2 => game
+  [{ a: 5, b: 3 }, true], // 5–3 => game
+  [{ a: 4, b: 3 }, false], // need 2-point lead
+  [{ a: 3, b: 3 }, false], // not enough points
+];
+
+describe("isGameWin", () => {
+  it.each(gameWinCases)("%# isGameWin(%j) -> %s", (pts, expected) => {
+    expect(isGameWin(pts)).toBe(expected);
+  });
+});
+
+const setWinCases: Array<[Games, boolean]> = [
+  [{ a: 6, b: 4 }, true],
+  [{ a: 7, b: 5 }, true],
+  [{ a: 6, b: 5 }, false], // need 2-game margin
+  [{ a: 5, b: 7 }, true], // symmetric
+];
+
+describe("isSetWin", () => {
+  it.each(setWinCases)("%# isSetWin(%j) -> %s", (g, expected) => {
+    expect(isSetWin(g)).toBe(expected);
+  });
+});
+
+type EnterCase = [Games, boolean /*tiebreaker flag*/, boolean /*expected*/];
+const enterCases: EnterCase[] = [
+  [{ a: 6, b: 0 }, false, false], // kills "a>=6 && b>=6" mutants
+  [{ a: 0, b: 6 }, false, false], // symmetric
+  [{ a: 6, b: 6 }, false, true], // hits 6–6 and not already in TB
+  [{ a: 6, b: 6 }, true, false], // already in TB
+  [{ a: 6, b: 5 }, false, false], // not 6–6
+  [{ a: 1, b: 1 }, false, false],
+];
+
+describe("enterTiebreaker", () => {
+  it.each(enterCases)("%# enterTiebreaker(%j, %s) -> %s", (g, tb, expected) => {
+    expect(enterTiebreaker(g, tb)).toBe(expected);
+  });
+});
+
+const tieCases: Array<[Points, boolean]> = [
+  [{ a: 7, b: 5 }, true],
+  [{ a: 10, b: 8 }, true],
+  [{ a: 7, b: 6 }, false], // need 2-point lead
+  [{ a: 6, b: 6 }, false], // below threshold
+];
+
+describe("inTiebreaker", () => {
+  it.each(tieCases)("%# inTiebreaker(%j) -> %s", (pts, expected) => {
+    expect(inTiebreaker(pts)).toBe(expected);
+  });
+});
+
+const matchWinCases: Array<[Sets, boolean]> = [
+  [{ a: 3, b: 2 }, true], // boundary diff=1 (kills >=1 -> >1 mutant)
+  [{ a: 3, b: 3 }, false], // kills "diff check removed" mutants
+  [{ a: 2, b: 1 }, false], // below threshold
+  [{ a: 4, b: 2 }, true], // normal win
+];
+
+describe("isMatchWon", () => {
+  it.each(matchWinCases)("%# isMatchWon(%j) -> %s", (s, expected) => {
+    expect(isMatchWon(s)).toBe(expected);
+  });
+});
+
 it.each([
   [
     {

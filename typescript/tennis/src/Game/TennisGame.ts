@@ -58,14 +58,14 @@ export function calculateOutcome(
   }
 }
 
-function isGameWin(points: Points): boolean {
+export function isGameWin(points: Points): boolean {
   const gameWon =
     Math.max(points.a, points.b) >= POINTS_TO_WIN_GAME &&
     Math.abs(points.a - points.b) >= 2;
 
   return gameWon;
 }
-function enterTiebreaker(games: Games, tiebreaker: boolean): boolean {
+export function enterTiebreaker(games: Games, tiebreaker: boolean): boolean {
   const isTiebreaker =
     games.a >= GAMES_TO_WIN_SET &&
     games.b >= GAMES_TO_WIN_SET &&
@@ -74,21 +74,21 @@ function enterTiebreaker(games: Games, tiebreaker: boolean): boolean {
 
   return isTiebreaker;
 }
-function inTiebreaker(points: Points): boolean {
+export function inTiebreaker(points: Points): boolean {
   const tiebreakerWon =
     Math.max(points.a, points.b) >= TIEBREAK_POINTS_HIGH &&
     Math.abs(points.a - points.b) >= TIEBREAK_POINTS_LOW;
 
   return tiebreakerWon;
 }
-function isSetWin(games: Games): boolean {
+export function isSetWin(games: Games): boolean {
   const setWon =
     Math.max(games.a, games.b) >= GAMES_TO_WIN_SET &&
     Math.abs(games.a - games.b) >= 2;
 
   return setWon;
 }
-function isMatchWon(sets: Sets): boolean {
+export function isMatchWon(sets: Sets): boolean {
   const matchWon =
     Math.max(sets.a, sets.b) >= SETS_TO_WIN_MATCH &&
     Math.abs(sets.a - sets.b) >= 1;

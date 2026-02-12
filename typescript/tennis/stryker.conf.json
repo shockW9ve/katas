@@ -3,11 +3,13 @@
   "testRunner": "vitest",
   "coverageAnalysis": "perTest",
   "mutate": [
-    "src/tennis/**/*.ts",
+    "src/Game/**/*.ts",
+    "!src/index.ts",
     "!**/*.{spec,test}.ts"
   ],
   "vitest": {
-    "configFile": "vitest.config.ts"
+    "configFile": "vitest.config.ts",
+    "related": false
   },
   "checkers": [
     "typescript"
