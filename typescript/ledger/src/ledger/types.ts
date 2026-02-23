@@ -1,10 +1,10 @@
 export type Command = {
-  type: string;
+  type: Event;
   amount: number;
 };
-export type Event = "Desposit" | "Withdraw" | "WithdrawalRejected";
-export type LedgerState = {
+export type Event = "Deposit" | "Withdraw" | "WithdrawalRejected";
+export type LedgerState = Readonly<{
   balance: number;
-  events: [];
-};
+  // events: Array<Event>;
+}>;
 export type Money = "USD" | "EUR" | "GBP";
