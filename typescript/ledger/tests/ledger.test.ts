@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { initialState, transition } from "../src/ledger/ledger.js";
 import type { Command } from "../src/ledger/types.js";
+import { availableMemory } from "node:process";
 
 describe("Ledger kata", () => {
   it("1) starts with zero balance", () => {
@@ -58,6 +59,10 @@ describe("Ledger kata", () => {
       // You decide if this is a specific event or an error outcome.
       // But be consistent: either emit a "Rejected" event or return an error structure.
       expect(events.length).toBe(1);
+      expect(events[0]).toMatchObject({
+        type: "InvalidAction",
+        amount: events[0].amount,
+      });
     }
   });
 

@@ -9,9 +9,17 @@ export function transition(
   state: LedgerState,
   command: Command,
 ): { next: LedgerState; events: Array<ActionTaken> } {
+  if (command.amount <= 0) {
+    return {
+      next: { balance: 0, events: [] },
+      events: [{ type: "InvalidAction", amount: command.amount }],
+    };
+  }
+
+  state.events.push(command.type);
   if (command.type === "Deposit") {
     return {
-      next: { balance: state.balance + command.amount, events: [command.type] },
+      next: { balance: state.balance + command.amount, events: state.events },
       events: [{ type: "Deposited", amount: command.amount }],
     };
   } else if (command.type === "Withdraw") {
@@ -20,7 +28,7 @@ export function transition(
       return {
         next: {
           balance: state.balance - command.amount,
-          events: [command.type],
+          events: state.events,
         },
         events: [{ type: "Withdrawn", amount: command.amount }],
       };
@@ -28,7 +36,7 @@ export function transition(
       return {
         next: {
           balance: state.balance,
-          events: [command.type],
+          events: state.events,
         },
         events: [{ type: "WithdrawalRejected", amount: command.amount }],
       };
@@ -46,18 +54,5 @@ function isValid(balance: number, amount: number) {
     return true;
   }
 }
+// TODO
 // export function apply(state, event) {}
-//
-// function evaluateEvent(event: Event): LedgerState {
-//   if (event === "Desposit") {
-//     return {};
-//   }
-// }
-
-class Ledger {
-  private _state: LedgerState;
-
-  constructor() {
-    this._state = initialState();
-  }
-}
