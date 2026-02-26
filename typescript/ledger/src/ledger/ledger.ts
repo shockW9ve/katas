@@ -16,18 +16,20 @@ export function transition(
     };
   }
 
-  state.events.push(command.type);
-  if (command.type === "Deposit") {
+  let nextEvent = [...state.events, command.type];
+  let calc = balance(state.balance, command);
+
+  if (command.type === "DepositRequest") {
     return {
-      next: { balance: state.balance + command.amount, events: state.events },
+      next: { balance: calc, events: state.events },
       events: [{ type: "Deposited", amount: command.amount }],
     };
-  } else if (command.type === "Withdraw") {
+  } else if (command.type === "WithdrawRequest") {
     let funds = isValid(state.balance, command.amount);
     if (funds) {
       return {
         next: {
-          balance: state.balance - command.amount,
+          balance: calc,
           events: state.events,
         },
         events: [{ type: "Withdrawn", amount: command.amount }],
@@ -45,7 +47,13 @@ export function transition(
   return { next: { balance: 0, events: [] }, events: [] };
 }
 
-function balance(state: LedgerState) {}
+function balance(balance: number, command: Command): number {
+  if (command.type === "Deposit") {
+    return balance + command.amount;
+  } else {
+    return balance - command.amount;
+  }
+}
 
 function isValid(balance: number, amount: number) {
   if (balance - amount < 0) {
@@ -54,5 +62,3 @@ function isValid(balance: number, amount: number) {
     return true;
   }
 }
-// TODO
-// export function apply(state, event) {}
