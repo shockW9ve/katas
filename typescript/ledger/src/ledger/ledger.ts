@@ -1,27 +1,37 @@
-import { Action, ActionTaken, Command, Event, LedgerState } from "./types.js";
+import {
+  Action,
+  ActionTaken,
+  Command,
+  CurrencyCode,
+  Event,
+  LedgerState,
+} from "./types.js";
+
 export function initialState(): LedgerState {
   return {
     balance: 0,
+    currency: "",
     events: [],
   };
 }
+
 export function transition(
   state: LedgerState,
   command: Command,
-): { next: LedgerState; events: Array<ActionTaken> } {
+): { next: LedgerState } {
   if (command.amount <= 0) {
     return {
-      next: { balance: 0, events: [] },
-      events: [{ type: "InvalidAction", amount: command.amount }],
+      next: { balance: 0, currency: "", events: [] },
     };
   }
 
   let nextEvent = [...state.events, command.type];
   let calc = balance(state.balance, command);
+  let cur = currencySymbol(state.currency);
 
   if (command.type === "DepositRequest") {
     return {
-      next: { balance: calc, events: state.events },
+      next: { balance: calc, currency: cur, events: state.events },
       events: [{ type: "Deposited", amount: command.amount }],
     };
   } else if (command.type === "WithdrawRequest") {
@@ -61,4 +71,10 @@ function isValid(balance: number, amount: number) {
   } else {
     return true;
   }
+}
+function currencySymbol(currency: CurrencyCode): Intl.NumberFormat {
+  return new Intl.NumberFormat("default", {
+    style: "currency",
+    currency: currency,
+  });
 }
