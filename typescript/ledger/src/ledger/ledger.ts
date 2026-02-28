@@ -2,7 +2,9 @@ import {
   Action,
   ActionTaken,
   Command,
+  Currency,
   CurrencyCode,
+  CurrencySymbol,
   Event,
   LedgerState,
 } from "./types.js";
@@ -10,7 +12,10 @@ import {
 export function initialState(): LedgerState {
   return {
     balance: 0,
-    currency: "",
+    currency: {
+      code: "USD",
+      symbol: "$",
+    },
     events: [],
   };
 }
@@ -21,18 +26,30 @@ export function transition(
 ): { next: LedgerState } {
   if (command.amount <= 0) {
     return {
-      next: { balance: 0, currency: "", events: [] },
+      next: {
+        balance: state.balance,
+        currency: { code: "USD", symbol: "$" },
+        events: [
+          ...state.events,
+          { type: "InvalidAction", amount: command.amount },
+        ],
+      },
     };
   }
 
-  let nextEvent = [...state.events, command.type];
   let calc = balance(state.balance, command);
-  let cur = currencySymbol(state.currency);
+  let cur = currencySymbol(state.currency.code);
 
   if (command.type === "DepositRequest") {
     return {
-      next: { balance: calc, currency: cur, events: state.events },
-      events: [{ type: "Deposited", amount: command.amount }],
+      next: {
+        balance: calc,
+        currency: cur,
+        events: [
+          ...state.events,
+          { type: "Deposited", amount: command.amount },
+        ],
+      },
     };
   } else if (command.type === "WithdrawRequest") {
     let funds = isValid(state.balance, command.amount);
@@ -40,25 +57,38 @@ export function transition(
       return {
         next: {
           balance: calc,
-          events: state.events,
+          currency: cur,
+          events: [
+            ...state.events,
+            { type: "Withdrawn", amount: command.amount },
+          ],
         },
-        events: [{ type: "Withdrawn", amount: command.amount }],
       };
     } else {
       return {
         next: {
           balance: state.balance,
-          events: state.events,
+          currency: cur,
+          events: [
+            ...state.events,
+            { type: "WithdrawalRejected", amount: command.amount },
+          ],
         },
-        events: [{ type: "WithdrawalRejected", amount: command.amount }],
       };
     }
   }
-  return { next: { balance: 0, events: [] }, events: [] };
+
+  return {
+    next: {
+      balance: 0,
+      currency: { code: "", symbol: "" },
+      events: [],
+    },
+  };
 }
 
 function balance(balance: number, command: Command): number {
-  if (command.type === "Deposit") {
+  if (command.type === "DepositRequest") {
     return balance + command.amount;
   } else {
     return balance - command.amount;
@@ -72,9 +102,24 @@ function isValid(balance: number, amount: number) {
     return true;
   }
 }
-function currencySymbol(currency: CurrencyCode): Intl.NumberFormat {
-  return new Intl.NumberFormat("default", {
-    style: "currency",
-    currency: currency,
-  });
+
+function currencySymbol(code: CurrencyCode): Currency {
+  // const symbols = new Map<CurrencyCode, CurrencySymbol>([
+  //   ["USD", "$"],
+  //   ["EUR", "€"],
+  //   ["GBP", "£"],
+  // ]);
+  const currencySymbols: Record<string, CurrencySymbol> = {
+    USD: "$",
+    EUR: "€",
+    GBP: "£",
+  };
+
+  return { code: code, symbol: currencySymbols[code] };
 }
+// function currencySymbol(currency: CurrencyCode): Intl.NumberFormat {
+//   return new Intl.NumberFormat("default", {
+//     style: "currency",
+//     currency: currency,
+//   });
+// }

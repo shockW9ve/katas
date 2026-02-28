@@ -14,8 +14,14 @@ export type ActionTaken = { type: Action; amount: number };
 
 export type LedgerState = Readonly<{
   balance: number;
-  currency: CurrencyCode;
-  events: Array<ActionTaken>;
+  currency: {
+    code: CurrencyCode;
+    symbol: CurrencySymbol;
+  };
+  events: ReadonlyArray<ActionTaken>;
+  // events: ReadonlyArray<Action>;
 }>;
 
 export type CurrencyCode = "USD" | "EUR" | "GBP" | "";
+export type CurrencySymbol = "$" | "€" | "£" | "";
+export type Currency = { code: CurrencyCode; symbol: CurrencySymbol };
