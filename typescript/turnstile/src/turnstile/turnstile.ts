@@ -1,10 +1,15 @@
-import { Actions, Event, State } from "./types.js";
+import type { Actions, Event, State } from "./types.js";
 
-function transition(
+export function transition(
   state: State,
   event: Event,
 ): { nextState: State; actions: Actions[] } {
   if (state === "Locked") {
+    // let status =
+    //   event === "Coin"
+    //     ? { nextState: "Unlocked", actions: ["ThankYou"] }
+    //     : { nextState: "Locked", actions: ["Alarm"] };
+    // return status;
     if (event === "Coin") {
       return { nextState: "Unlocked", actions: ["ThankYou"] };
     } else {
