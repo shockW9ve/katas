@@ -28,7 +28,7 @@ describe("Traffic light", () => {
   it("5) action always matches the next state", () => {
     const s = transition("Red", { type: "TimerElapsed" });
     // Hint: your action should encode which light is being set.
-    expect(JSON.stringify(s.actions[0])).toContain(s.nextState);
+    expect(JSON.stringify(s.actions[0].to)).toContain(s.nextState);
   });
 
   it("6) Emergency forces Red from any state", () => {
