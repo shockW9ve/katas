@@ -1,8 +1,8 @@
-import { Clock } from "./clock.js";
+import { Clock, FakeClock } from "./clock.js";
 import { Policy } from "./policies.js";
 
-export type cacheRequest = {
+export type CacheRequest = {
   capacity: number;
-  clock: Clock;
+  clock: FakeClock; //Clock;
   policy: Policy;
 };

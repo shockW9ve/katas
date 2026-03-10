@@ -1,3 +1,5 @@
+import type { CacheRequest } from "./types.js";
+
 export class Cache extends Map<string, number> {
   constructor() {
     super();
@@ -8,3 +10,5 @@ export class Cache extends Map<string, number> {
   delete(key: string): boolean {}
   size(): number {}
 }
+
+export function createCache<string, number>(request: CacheRequest) {}

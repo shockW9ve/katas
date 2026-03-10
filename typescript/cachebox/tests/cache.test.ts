@@ -1,4 +1,6 @@
 import { describe, it, expect } from "vitest";
+import { FakeClock } from "../src/cache/clock.js";
+import { createCache } from "../src/cache/cache.js";
 
 describe("Cachebox", () => {
   it("1) set/get returns value", () => {
