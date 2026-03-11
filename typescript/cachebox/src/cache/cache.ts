@@ -5,10 +5,13 @@ export class Cache extends Map<string, number> {
     super();
   }
 
-  get cache(): V | undefined {}
-  set cache(key: string): void {}
-  delete(key: string): boolean {}
-  size(): number {}
+  // get cache(): V | undefined {}
+  // set cache(key: string): void {}
+  // delete(key: string): boolean {}
+  // size(): number {}
 }
 
-export function createCache<string, number>(request: CacheRequest) {}
+export function createCache(request: CacheRequest): Cache {
+  const cache = new Cache();
+  return cache;
+}

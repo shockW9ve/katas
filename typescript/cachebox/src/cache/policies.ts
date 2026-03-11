@@ -1,7 +1,9 @@
 export class Policy {
-  onGet(string: key) {}
-  onSet(string: key) {}
-  evictKey(): K | undefined {}
+  onGet(key: string) {}
+  onSet(key: string) {}
+  // evictKey(): K | undefined {}
 }
 
-export function lruPolicy() {}
+export function lruPolicy(): Policy {
+  return new Policy();
+}
