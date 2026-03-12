@@ -33,14 +33,30 @@ describe("Cachebox", () => {
 
   it("3) overwriting key updates value and refreshes TTL if provided", () => {
     const clock = new FakeClock(0);
-    const cache = createCache<string, number>({
+    const cache = createCache({
       capacity: 10,
       clock,
       policy: lruPolicy(),
     });
 
-    cache.set("a", 1, 1000);
-    cache.set("a", 2, 1000);
+    cache.add("a", 1, 1000);
+    cache.add("a", 2, 1000);
     expect(cache.get("a")).toBe(2);
+  });
+
+  it("4) TTL expiry: item becomes unavailable after ttl", () => {
+    const clock = new FakeClock(0);
+    const cache = createCache({
+      capacity: 10,
+      clock,
+      policy: lruPolicy(),
+    });
+
+    cache.add("a", 1, 1000);
+    clock.advanceMs(999);
+    expect(cache.get("a")).toBe(1);
+
+    clock.advanceMs(1);
+    expect(cache.get("a")).toBeUndefined();
   });
 });
