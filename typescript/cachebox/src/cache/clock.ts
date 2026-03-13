@@ -19,7 +19,22 @@ export class Clock {
 
 export class FakeClock {
   private ttl: number;
+  private start: number;
+
   constructor(ttl: number) {
     this.ttl = ttl;
+    this.start = ttl;
+  }
+
+  advanceMs(tick: number) {
+    this.ttl = this.ttl - tick;
+  }
+
+  get timer() {
+    return this.ttl;
+  }
+
+  get starter() {
+    return this.start;
   }
 }
