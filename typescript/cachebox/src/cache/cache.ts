@@ -1,18 +1,20 @@
+import type { Clock, FakeClock } from "./clock.js";
 import type { CacheRequest } from "./types.js";
 
-export class Cache extends Map<string, [value: number, ttl?: number]> {
+export class Cache extends Map<string, number> {
   // private map: Map<string, number>;
-  constructor() {
+  private clock: FakeClock;
+  constructor(clock: FakeClock, ttl?: number) {
     super();
     // this.map = new Map<string, number>();
+    this.clock = clock;
   }
 
   add(key: string, value: number, ttl?: number) {
     if (ttl) {
-      this.set(key, [value, ttl]);
-      return;
+      this.clock.timer = ttl;
     }
-    this.set(key, [value]);
+    this.set(key, value);
   }
   // get cache(): V | undefined {}
   // set cache(key: string): void {}
@@ -21,7 +23,7 @@ export class Cache extends Map<string, [value: number, ttl?: number]> {
 }
 
 export function createCache(request: CacheRequest): Cache {
-  const cache = new Cache();
+  const cache = new Cache(request.clock);
   // request.clock.advanceMs()
 
   // if (request.clock.timer <= 0) {

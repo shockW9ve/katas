@@ -54,7 +54,7 @@ describe("Cachebox", () => {
 
     cache.add("a", 1, 1000);
     clock.advanceMs(999);
-    expect(cache.get("a")).toStrictEqual([1, 1000]);
+    expect(cache.get("a")).toBe(1);
 
     clock.advanceMs(1);
     expect(cache.get("a")).toBeUndefined();

@@ -30,6 +30,10 @@ export class FakeClock {
     this.ttl = this.ttl - tick;
   }
 
+  set timer(time: number) {
+    this.ttl = time;
+  }
+
   get timer() {
     return this.ttl;
   }
