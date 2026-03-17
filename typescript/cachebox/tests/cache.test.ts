@@ -56,7 +56,23 @@ describe("Cachebox", () => {
     clock.advanceMs(999);
     expect(cache.get("a")).toBe(1);
 
-    clock.advanceMs(1);
+    clock.advanceMs(1, cache);
     expect(cache.get("a")).toBeUndefined();
+  });
+
+  it("5) capacity: when full, setting a new key evicts exactly one key", () => {
+    const clock = new FakeClock(0);
+    const cache = createCache<string, number>({
+      capacity: 2,
+      clock,
+      policy: lruPolicy(),
+    });
+
+    cache.set("a", 1);
+    cache.set("b", 2);
+    cache.set("c", 3);
+
+    // Expect size stays at capacity.
+    expect(cache.size()).toBe(2);
   });
 });

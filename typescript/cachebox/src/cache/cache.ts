@@ -24,14 +24,15 @@ export class Cache extends Map<string, number> {
 
 export function createCache(request: CacheRequest): Cache {
   const cache = new Cache(request.clock);
+  //
   // request.clock.advanceMs()
 
   // if (request.clock.timer <= 0) {
-  cache.forEach((value, key) => {
-    if (request.clock.timer === 0) {
-      cache.delete(key);
-    }
-  });
+  // cache.forEach((value, key) => {
+  //   if (request.clock.timer <= 0) {
+  //     cache.delete(key);
+  //   }
+  // });
   // }
   return cache;
 }
