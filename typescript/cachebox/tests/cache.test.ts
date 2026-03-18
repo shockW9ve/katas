@@ -13,7 +13,7 @@ describe("Cachebox", () => {
       policy: lruPolicy(),
     });
     // act
-    cache.set("a", 1);
+    cache.add("a", 1);
     // assert
     expect(cache.get("a")).toBe(1);
   });
