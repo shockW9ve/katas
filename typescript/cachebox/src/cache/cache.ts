@@ -39,7 +39,7 @@ export function createCache(request: CacheRequest): CacheBox<string, number> {
   return cache;
 }
 
-class CacheBox<K, V> {
+export class CacheBox<K, V> {
   private readonly cache: Map<K, V> = new Map();
   private readonly capacity: number;
   private clock: FakeClock;
@@ -51,11 +51,15 @@ class CacheBox<K, V> {
     this.policy = request.policy;
   }
 
-  add(key: K, value: V, ttl?: number): void {
+  set(key: K, value: V, ttl?: number): void {
     if (ttl) {
       this.clock.timer = ttl;
     }
     this.cache.set(key, value);
+
+    if (this.cache.size > this.capacity) {
+      this.cache.delete(key);
+    }
   }
   // set(key: string, value: number) {
   //   this.cache.set(key, value);
@@ -63,5 +67,14 @@ class CacheBox<K, V> {
 
   get(key: K): V | undefined {
     return this.cache.get(key);
+  }
+
+  // delete(key: string): void {
+  delete(): void {
+    this.cache.clear();
+  }
+
+  size(): number {
+    return this.cache.size;
   }
 }

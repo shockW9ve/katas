@@ -1,4 +1,4 @@
-import { Cache } from "./cache.js";
+import { Cache, CacheBox } from "./cache.js";
 export class Clock {
   private dateInit: Date;
 
@@ -27,10 +27,10 @@ export class FakeClock {
     this.start = ttl;
   }
 
-  advanceMs(tick: number, cache?: Cache) {
+  advanceMs(tick: number, cache?: CacheBox<string, number>) {
     this.ttl = this.ttl - tick;
     if (this.ttl <= 0) {
-      cache?.clear();
+      cache?.delete();
     }
   }
 
