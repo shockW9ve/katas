@@ -51,12 +51,12 @@ describe("Cachebox", () => {
       clock,
       policy: lruPolicy(),
     });
-
-    cache.set("a", 1, 1000);
-    clock.advanceMs(999);
+    const key = "a";
+    cache.set(key, 1, 1000);
+    clock.advanceMs(999, cache, key);
     expect(cache.get("a")).toBe(1);
 
-    clock.advanceMs(1, cache);
+    clock.advanceMs(1, cache, key);
     expect(cache.get("a")).toBeUndefined();
   });
 

@@ -27,10 +27,10 @@ export class FakeClock {
     this.start = ttl;
   }
 
-  advanceMs(tick: number, cache?: CacheBox<string, number>) {
+  advanceMs(tick: number, cache: CacheBox<string, number>, key: string) {
     this.ttl = this.ttl - tick;
     if (this.ttl <= 0) {
-      cache?.delete();
+      cache?.delete(key);
     }
   }
 

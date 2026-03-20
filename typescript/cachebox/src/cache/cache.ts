@@ -40,6 +40,7 @@ export function createCache(request: CacheRequest): CacheBox<string, number> {
 }
 
 export class CacheBox<K, V> {
+  private readonly history: Array<K> = [];
   private readonly cache: Map<K, V> = new Map();
   private readonly capacity: number;
   private clock: FakeClock;
@@ -58,8 +59,11 @@ export class CacheBox<K, V> {
     this.cache.set(key, value);
 
     if (this.cache.size > this.capacity) {
-      this.cache.delete(key);
+      const key = this.history[0]; //.shift();
+      this.delete(key);
     }
+
+    this.history.push(key);
   }
   // set(key: string, value: number) {
   //   this.cache.set(key, value);
@@ -70,8 +74,11 @@ export class CacheBox<K, V> {
   }
 
   // delete(key: string): void {
-  delete(): void {
-    this.cache.clear();
+  delete(key: K | undefined): void {
+    if (key === undefined) {
+      throw new Error("Key is missing");
+    }
+    this.cache.delete(key);
   }
 
   size(): number {
