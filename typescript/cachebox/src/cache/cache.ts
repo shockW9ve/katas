@@ -45,7 +45,7 @@ export class CacheBox<K, V> {
   private readonly capacity: number;
   private clock: FakeClock;
   private policy: Policy;
-  private readonly queue: List<T>;
+  // make a queue for lru?
 
   constructor(request: CacheRequest) {
     this.capacity = request.capacity;
@@ -67,15 +67,11 @@ export class CacheBox<K, V> {
 
     this.history.push(key);
   }
-  // set(key: string, value: number) {
-  //   this.cache.set(key, value);
-  // }
 
   get(key: K): V | undefined {
     return this.cache.get(key);
   }
 
-  // delete(key: string): void {
   delete(key: K | undefined): void {
     if (key === undefined) {
       throw new Error("Key is missing");
