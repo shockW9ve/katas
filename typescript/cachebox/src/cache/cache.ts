@@ -45,6 +45,7 @@ export class CacheBox<K, V> {
   private readonly capacity: number;
   private clock: FakeClock;
   private policy: Policy;
+  private readonly queue: List<T>;
 
   constructor(request: CacheRequest) {
     this.capacity = request.capacity;
@@ -59,6 +60,7 @@ export class CacheBox<K, V> {
     this.cache.set(key, value);
 
     if (this.cache.size > this.capacity) {
+      // todo if policy then do something
       const key = this.history[0]; //.shift();
       this.delete(key);
     }
