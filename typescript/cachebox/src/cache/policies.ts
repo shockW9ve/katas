@@ -4,6 +4,6 @@ export class Policy {
   // evictKey(): K | undefined {}
 }
 
-export function lruPolicy(): Policy {
-  return new Policy();
+export function lruPolicy(): string {
+  return "LRU";
 }

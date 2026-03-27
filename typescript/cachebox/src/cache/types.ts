@@ -4,5 +4,5 @@ import { Policy } from "./policies.js";
 export type CacheRequest = {
   capacity: number;
   clock: FakeClock; //Clock;
-  policy: Policy;
+  policy: string;
 };
