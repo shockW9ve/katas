@@ -1,13 +1,17 @@
+import {
+  ConcreteStrategyLRU,
+  Context,
+  getStrategy,
+} from "../pattern/strategy.js";
 import type { Clock, FakeClock } from "./clock.js";
 import type { Policy } from "./policies.js";
 import type { CacheRequest } from "./types.js";
 
 export class Cache extends Map<string, number> {
-  // private map: Map<string, number>;
   private clock: FakeClock;
-  constructor(clock: FakeClock, ttl?: number) {
+
+  constructor(clock: FakeClock) {
     super();
-    // this.map = new Map<string, number>();
     this.clock = clock;
   }
 
@@ -17,30 +21,15 @@ export class Cache extends Map<string, number> {
     }
     this.set(key, value);
   }
-  // get cache(): V | undefined {}
-  // set cache(key: string): void {}
-  // delete(key: string): boolean {}
-  // size(): number {}
 }
 
 export function createCache(request: CacheRequest): CacheBox<string, number> {
-  // const cache = new Cache(request.clock);
   const cache = new CacheBox<string, number>(request);
-  //
-  // request.clock.advanceMs()
-
-  // if (request.clock.timer <= 0) {
-  // cache.forEach((value, key) => {
-  //   if (request.clock.timer <= 0) {
-  //     cache.delete(key);
-  //   }
-  // });
-  // }
   return cache;
 }
 
 export class CacheBox<K, V> {
-  private readonly history: Array<K | undefined> = [];
+  private history: Array<K | undefined> = [];
   private readonly cache: Map<K, V> = new Map();
   private readonly capacity: number;
   private clock: FakeClock;
@@ -59,21 +48,26 @@ export class CacheBox<K, V> {
     this.cache.set(key, value);
 
     if (this.cache.size > this.capacity && this.policy === "LRU") {
-      for (let i = 0; i < this.cache.size; i++) {
-        if (this.history[i] === key) {
-          const temp = this.history[0];
-          this.history[0] = this.history[i];
-          this.history[i] = temp;
-        }
-      }
-      const k = this.history.pop(); //.shift();
+      // for (let i = 0; i < this.cache.size; i++) {
+      //   if (this.history[i] === key) {
+      //     const temp = this.history[0];
+      //     this.history[0] = this.history[i];
+      //     this.history[i] = temp;
+      //   }
+      // }
+      const context: Context = getStrategy();
+      this.history = context.executeStrategy(
+        this.cache.size,
+        this.history,
+        key,
+      );
+
+      const k = this.history.pop();
       this.delete(k);
     }
 
     if (this.cache.size > this.capacity || this.policy !== "LRU") {
-      // if (this.cache.size > this.capacity) {
-      // todo if policy then do something
-      const key = this.history[0]; //.shift();
+      const key = this.history[0];
       this.delete(key);
     }
 

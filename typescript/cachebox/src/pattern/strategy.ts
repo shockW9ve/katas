@@ -1,13 +1,28 @@
+// todo return type
 interface Strategy {
-  // todo args and return?
-  execute();
+  execute(
+    length: number,
+    history: Array<K | undefined>,
+    key: K,
+  ): Array<string | undefined>;
 }
 
-class ConcreteStrategyA implements Strategy {
-  execute() {}
+export class ConcreteStrategyLRU implements Strategy {
+  execute(length: number, history: Array<K | undefined>, key: string) {
+    const h: Array<string | undefined> = history;
+    for (let i = 0; i < length; i++) {
+      if (h[i] === key) {
+        const temp = h[0];
+        h[0] = h[i];
+        h[i] = temp;
+      }
+    }
+
+    return h;
+  }
 }
 
-class Context {
+export class Context {
   private strategy: Strategy;
 
   constructor(strategy: Strategy) {
@@ -18,7 +33,17 @@ class Context {
     this.strategy = strategy;
   }
 
-  public executeStrategy() {
-    this.strategy.execute();
+  public executeStrategy(
+    length: number,
+    history: Array<K | undefined>,
+    key: K,
+  ) {
+    return this.strategy.execute(length, history, key);
   }
+}
+
+export function getStrategy(): Context {
+  const lru: ConcreteStrategyLRU = new ConcreteStrategyLRU();
+  const context: Context = new Context(lru);
+  return context;
 }
