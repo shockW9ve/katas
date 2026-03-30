@@ -13,6 +13,13 @@ export class Clock {
     return time;
   }
 
+  advanceMs(ttl: number) {
+    const dateNow: Date = new Date();
+    const ms: number = dateNow.getTime();
+    const time: number = ms - ttl;
+    return time;
+  }
+
   toString() {
     console.log(`Clock init date ${this.dateInit}`);
   }

@@ -8,21 +8,21 @@ import type { FakeClock } from "./clock.js";
 import type { Policy } from "./policies.js";
 import type { CacheRequest } from "./types.js";
 
-export class Cache extends Map<string, number> {
-  private clock: FakeClock;
-
-  constructor(clock: FakeClock) {
-    super();
-    this.clock = clock;
-  }
-
-  add(key: string, value: number, ttl?: number) {
-    if (ttl) {
-      this.clock.timer = ttl;
-    }
-    this.set(key, value);
-  }
-}
+// export class Cache extends Map<string, number> {
+//   private clock: FakeClock;
+//
+//   constructor(clock: FakeClock) {
+//     super();
+//     this.clock = clock;
+//   }
+//
+//   add(key: string, value: number, ttl?: number) {
+//     if (ttl) {
+//       this.clock.timer = ttl;
+//     }
+//     this.set(key, value);
+//   }
+// }
 
 export function createCache(request: CacheRequest): CacheBox<string, number> {
   const cache = new CacheBox<string, number>(request);
@@ -36,6 +36,7 @@ export class CacheBox<K, V> {
   private context: Context;
   private clock: FakeClock;
   private policy: Policy;
+  private readonly ttl: number;
 
   constructor(request: CacheRequest) {
     this.capacity = request.capacity;
@@ -53,10 +54,19 @@ export class CacheBox<K, V> {
   }
 
   set(key: K, value: V, ttl?: number): void {
-    if (ttl) {
-      this.clock.timer = ttl;
-    }
-    this.cache.set(key, value);
+    // if (ttl) {
+    //   this.clock.timer = ttl;
+    // }
+    // TODO:
+    // check/update expiry metadata
+    //
+    // update value
+    //
+    // notify policy
+    //
+    // evict if over capacity
+    // todo calc expires at value
+    this.cache.set(key, [value, expiresAt]);
 
     if (this.cache.size > this.capacity && this.policy === "LRU") {
       // const context: Context = getStrategy();
@@ -79,6 +89,7 @@ export class CacheBox<K, V> {
   }
 
   get(key: K): V | undefined {
+    //todo update time if policy dictates is
     return this.cache.get(key);
   }
 
