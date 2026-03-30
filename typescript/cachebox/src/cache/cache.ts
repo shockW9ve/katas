@@ -1,9 +1,10 @@
 import {
   ConcreteStrategyLRU,
   Context,
-  getStrategy,
+  getLRUStrategy,
+  getNormalStrategy,
 } from "../pattern/strategy.js";
-import type { Clock, FakeClock } from "./clock.js";
+import type { FakeClock } from "./clock.js";
 import type { Policy } from "./policies.js";
 import type { CacheRequest } from "./types.js";
 
@@ -32,13 +33,23 @@ export class CacheBox<K, V> {
   private history: Array<K | undefined> = [];
   private readonly cache: Map<K, V> = new Map();
   private readonly capacity: number;
+  private context: Context;
   private clock: FakeClock;
-  private policy: string;
+  private policy: Policy;
 
   constructor(request: CacheRequest) {
     this.capacity = request.capacity;
     this.clock = request.clock;
     this.policy = request.policy;
+    this.context = this.strategy();
+  }
+
+  strategy(): Context {
+    if (this.policy === "LRU") {
+      return getLRUStrategy();
+    } else {
+      return getNormalStrategy();
+    }
   }
 
   set(key: K, value: V, ttl?: number): void {
@@ -48,15 +59,8 @@ export class CacheBox<K, V> {
     this.cache.set(key, value);
 
     if (this.cache.size > this.capacity && this.policy === "LRU") {
-      // for (let i = 0; i < this.cache.size; i++) {
-      //   if (this.history[i] === key) {
-      //     const temp = this.history[0];
-      //     this.history[0] = this.history[i];
-      //     this.history[i] = temp;
-      //   }
-      // }
-      const context: Context = getStrategy();
-      this.history = context.executeStrategy(
+      // const context: Context = getStrategy();
+      this.history = this.context.executeStrategy(
         this.cache.size,
         this.history,
         key,
@@ -66,7 +70,7 @@ export class CacheBox<K, V> {
       this.delete(k);
     }
 
-    if (this.cache.size > this.capacity || this.policy !== "LRU") {
+    if (this.cache.size > this.capacity && this.policy === "Normal") {
       const key = this.history[0];
       this.delete(key);
     }

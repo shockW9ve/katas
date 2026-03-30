@@ -22,6 +22,16 @@ export class ConcreteStrategyLRU implements Strategy {
   }
 }
 
+export class ConcreteStrategyNormal implements Strategy {
+  execute(
+    length: number,
+    history: Array<K | undefined>,
+    key: K,
+  ): Array<string | undefined> {
+    return history;
+  }
+}
+
 export class Context {
   private strategy: Strategy;
 
@@ -42,8 +52,14 @@ export class Context {
   }
 }
 
-export function getStrategy(): Context {
+export function getLRUStrategy(): Context {
   const lru: ConcreteStrategyLRU = new ConcreteStrategyLRU();
+  const context: Context = new Context(lru);
+  return context;
+}
+
+export function getNormalStrategy(): Context {
+  const lru: ConcreteStrategyNormal = new ConcreteStrategyNormal();
   const context: Context = new Context(lru);
   return context;
 }

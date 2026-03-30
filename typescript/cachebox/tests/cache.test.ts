@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { FakeClock } from "../src/cache/clock.js";
 import { createCache } from "../src/cache/cache.js";
-import { lruPolicy } from "../src/cache/policies.js";
+import { Policy } from "../src/cache/policies.js";
 
 describe("Cachebox", () => {
   it("1) set/get returns value", () => {
@@ -10,7 +10,7 @@ describe("Cachebox", () => {
     const cache = createCache({
       capacity: 10,
       clock,
-      policy: lruPolicy(),
+      policy: "Normal",
     });
     // act
     cache.set("a", 1);
@@ -24,7 +24,7 @@ describe("Cachebox", () => {
     const cache = createCache({
       capacity: 10,
       clock,
-      policy: lruPolicy(),
+      policy: "Normal",
     });
     // act
     // assert
@@ -36,7 +36,7 @@ describe("Cachebox", () => {
     const cache = createCache({
       capacity: 10,
       clock,
-      policy: lruPolicy(),
+      policy: "Normal",
     });
 
     cache.set("a", 1, 1000);
@@ -49,7 +49,7 @@ describe("Cachebox", () => {
     const cache = createCache({
       capacity: 10,
       clock,
-      policy: lruPolicy(),
+      policy: "Normal",
     });
     const key = "a";
     cache.set(key, 1, 1000);
@@ -65,7 +65,7 @@ describe("Cachebox", () => {
     const cache = createCache({
       capacity: 2,
       clock,
-      policy: lruPolicy(),
+      policy: "LRU",
     });
 
     cache.set("a", 1);
@@ -81,7 +81,7 @@ describe("Cachebox", () => {
     const cache = createCache({
       capacity: 2,
       clock,
-      policy: lruPolicy(),
+      policy: "LRU",
     });
 
     cache.set("a", 1);
