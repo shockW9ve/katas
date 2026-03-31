@@ -33,7 +33,7 @@ export class CacheBox<K, V> {
   // private history: Array<K | undefined> = [];
   private readonly cache: Map<K, V> = new Map();
   private readonly capacity: number;
-  private context: Context;
+  // private context: Context;
   private clock: Clock; //FakeClock;
   private policy: Policy;
   private readonly ttl: { value: number; expiresAt?: number };
@@ -42,16 +42,16 @@ export class CacheBox<K, V> {
     this.capacity = request.capacity;
     this.clock = request.clock;
     this.policy = request.policy;
-    this.context = this.strategy();
+    // this.context = this.strategy();
   }
 
-  strategy(): Context {
-    if (this.policy === "LRU") {
-      return getLRUStrategy();
-    } else {
-      return getNormalStrategy();
-    }
-  }
+  // strategy(): Context {
+  //   if (this.policy === "LRU") {
+  //     return getLRUStrategy();
+  //   } else {
+  //     return getNormalStrategy();
+  //   }
+  // }
 
   set(key: K, value: V, ttl?: number): void {
     // if (ttl) {
