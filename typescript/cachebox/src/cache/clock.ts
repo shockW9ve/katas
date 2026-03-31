@@ -1,4 +1,3 @@
-import { Cache, CacheBox } from "./cache.js";
 export class Clock {
   private dateInit: Date;
 

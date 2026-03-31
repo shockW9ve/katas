@@ -4,7 +4,7 @@ import {
   getLRUStrategy,
   getNormalStrategy,
 } from "../pattern/strategy.js";
-import type { FakeClock } from "./clock.js";
+import type { Clock, FakeClock } from "./clock.js";
 import type { Policy } from "./policies.js";
 import type { CacheRequest } from "./types.js";
 
@@ -30,13 +30,13 @@ export function createCache(request: CacheRequest): CacheBox<string, number> {
 }
 
 export class CacheBox<K, V> {
-  private history: Array<K | undefined> = [];
+  // private history: Array<K | undefined> = [];
   private readonly cache: Map<K, V> = new Map();
   private readonly capacity: number;
   private context: Context;
-  private clock: FakeClock;
+  private clock: Clock; //FakeClock;
   private policy: Policy;
-  private readonly ttl: number;
+  private readonly ttl: { value: number; expiresAt?: number };
 
   constructor(request: CacheRequest) {
     this.capacity = request.capacity;
@@ -90,6 +90,12 @@ export class CacheBox<K, V> {
 
   get(key: K): V | undefined {
     //todo update time if policy dictates is
+    const time = this.clock.advanceMs(this.ttl.value);
+    if (time <= 0) {
+      // evict
+    } else {
+      // refresh time
+    }
     return this.cache.get(key);
   }
 
