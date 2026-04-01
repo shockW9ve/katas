@@ -31,12 +31,13 @@ export function createCache(request: CacheRequest): CacheBox<string, number> {
 
 export class CacheBox<K, V> {
   // private history: Array<K | undefined> = [];
-  private readonly cache: Map<K, V> = new Map();
+  private readonly cache: Map<K, [V, number | null]> = new Map();
   private readonly capacity: number;
+
   // private context: Context;
   private clock: Clock; //FakeClock;
   private policy: Policy;
-  private readonly ttl: { value: number; expiresAt?: number };
+  // private readonly ttl: { value: number; expiresAt?: number };
 
   constructor(request: CacheRequest) {
     this.capacity = request.capacity;
@@ -66,26 +67,31 @@ export class CacheBox<K, V> {
     //
     // evict if over capacity
     // todo calc expires at value
-    this.cache.set(key, [value, expiresAt]);
+    const time: number = this.clock.timeNow();
+    const expireAt: number = this.clock.calculateTTL(time, ttl);
 
-    if (this.cache.size > this.capacity && this.policy === "LRU") {
-      // const context: Context = getStrategy();
-      this.history = this.context.executeStrategy(
-        this.cache.size,
-        this.history,
-        key,
-      );
+    this.cache.set(key, [value, expireAt]);
 
-      const k = this.history.pop();
-      this.delete(k);
-    }
+    this.policy.onSet(key);
 
-    if (this.cache.size > this.capacity && this.policy === "Normal") {
-      const key = this.history[0];
-      this.delete(key);
-    }
-
-    this.history.push(key);
+    // if (this.cache.size > this.capacity && this.policy === "LRU") {
+    //   // const context: Context = getStrategy();
+    //   this.history = this.context.executeStrategy(
+    //     this.cache.size,
+    //     this.history,
+    //     key,
+    //   );
+    //
+    //   const k = this.history.pop();
+    //   this.delete(k);
+    // }
+    //
+    // if (this.cache.size > this.capacity && this.policy === "Normal") {
+    //   const key = this.history[0];
+    //   this.delete(key);
+    // }
+    //
+    // this.history.push(key);
   }
 
   get(key: K): V | undefined {

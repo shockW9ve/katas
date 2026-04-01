@@ -5,19 +5,36 @@ export class Clock {
     this.dateInit = new Date();
   }
 
-  msNow(): number {
-    const dateNow: Date = new Date();
-    const ms: number = dateNow.getTime();
-    const time: number = ms - this.dateInit.getTime();
-    return time;
+  initDate() {
+    return this.dateInit;
   }
 
-  advanceMs(ttl: number) {
-    const dateNow: Date = new Date();
-    const ms: number = dateNow.getTime();
-    const time: number = ms - ttl;
-    return time;
+  timeNow(): number {
+    const date: Date = new Date();
+    const ms: number = date.getTime();
+    return ms;
   }
+
+  calculateTTL(time: number, ttl?: number): number {
+    if (!ttl) {
+      return time;
+    }
+    return time + ttl;
+  }
+
+  // msNow(): number {
+  //   const dateNow: Date = new Date();
+  //   const ms: number = dateNow.getTime();
+  //   const time: number = ms - this.dateInit.getTime();
+  //   return time;
+  // }
+  //
+  // advanceMs(ttl: number) {
+  //   const dateNow: Date = new Date();
+  //   const ms: number = dateNow.getTime();
+  //   const time: number = ms - ttl;
+  //   return time;
+  // }
 
   toString() {
     console.log(`Clock init date ${this.dateInit}`);
@@ -33,22 +50,22 @@ export class FakeClock {
     this.start = ttl;
   }
 
-  advanceMs(tick: number, cache: CacheBox<string, number>, key: string) {
-    this.ttl = this.ttl - tick;
-    if (this.ttl <= 0) {
-      cache?.delete(key);
-    }
-  }
-
-  set timer(time: number) {
-    this.ttl = time;
-  }
-
-  get timer() {
-    return this.ttl;
-  }
-
-  get starter() {
-    return this.start;
-  }
+  // advanceMs(tick: number, cache: CacheBox<string, number>, key: string) {
+  //   this.ttl = this.ttl - tick;
+  //   if (this.ttl <= 0) {
+  //     cache?.delete(key);
+  //   }
+  // }
+  //
+  // set timer(time: number) {
+  //   this.ttl = time;
+  // }
+  //
+  // get timer() {
+  //   return this.ttl;
+  // }
+  //
+  // get starter() {
+  //   return this.start;
+  // }
 }
