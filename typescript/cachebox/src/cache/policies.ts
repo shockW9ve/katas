@@ -1,7 +1,7 @@
-export class Policy {
-  private evictionOrder: Array<string | undefined> = [];
+export class Policy<K> {
+  private evictionOrder: Array<K | undefined> = [];
 
-  onGet(key: string): void {
+  onGet(key: K): void {
     for (let item = 0; item < this.evictionOrder.length; item++) {
       if (this.evictionOrder[item] === key) {
         const temp = this.evictionOrder[0];
@@ -11,11 +11,17 @@ export class Policy {
     }
   }
 
-  onSet(key: string): void {
+  onSet(key: K): void {
+    for (let item = 0; item < this.evictionOrder.length; item++) {
+      if (this.evictionOrder[item] === key) {
+        this.evictionOrder = this.evictionOrder.filter((item) => item !== key);
+        // or simply return without filtering
+      }
+    }
     this.evictionOrder.push(key);
   }
 
-  evictKey(): string | undefined {
-    return this.evictionOrder.pop();
+  evictKey(): K | undefined {
+    return this.evictionOrder.shift();
   }
 }

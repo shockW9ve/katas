@@ -7,7 +7,7 @@ describe("Cachebox", () => {
   it("1) set/get returns value", () => {
     // arrange
     // const clock = new FakeClock(0);
-    const clock = new Clock(0);
+    const clock = new Clock();
     const cache = createCache({
       capacity: 10,
       clock,
@@ -16,13 +16,13 @@ describe("Cachebox", () => {
     // act
     cache.set("a", 1);
     // assert
-    expect(cache.get("a")).toStrictEqual([1, null]);
+    expect(cache.get("a")).toBe(1);
   });
 
   it("2) missing key return undefined", () => {
     // arrange
     // const clock = new FakeClock(0);
-    const clock = new Clock(0);
+    const clock = new Clock();
     const cache = createCache({
       capacity: 10,
       clock,
