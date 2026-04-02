@@ -1,7 +1,7 @@
 export class Policy {
   private evictionOrder: Array<string | undefined> = [];
 
-  onGet(key: string) {
+  onGet(key: string): void {
     for (let item = 0; item < this.evictionOrder.length; item++) {
       if (this.evictionOrder[item] === key) {
         const temp = this.evictionOrder[0];
@@ -11,15 +11,11 @@ export class Policy {
     }
   }
 
-  onSet(key: string) {
+  onSet(key: string): void {
     this.evictionOrder.push(key);
   }
 
-  evictKey(): K | undefined {}
+  evictKey(): string | undefined {
+    return this.evictionOrder.pop();
+  }
 }
-//
-// export function lruPolicy(): string {
-//   return "LRU";
-// }
-
-// export type Policy = "LRU" | "Normal";

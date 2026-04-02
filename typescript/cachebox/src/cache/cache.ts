@@ -35,7 +35,7 @@ export class CacheBox<K, V> {
   private readonly capacity: number;
 
   // private context: Context;
-  private clock: Clock; //FakeClock;
+  private clock: Clock | FakeClock; //FakeClock;
   private policy: Policy;
   // private readonly ttl: { value: number; expiresAt?: number };
 
@@ -55,9 +55,6 @@ export class CacheBox<K, V> {
   // }
 
   set(key: K, value: V, ttl?: number): void {
-    // if (ttl) {
-    //   this.clock.timer = ttl;
-    // }
     // TODO:
     // check/update expiry metadata
     //
@@ -68,48 +65,32 @@ export class CacheBox<K, V> {
     // evict if over capacity
     // todo calc expires at value
     const time: number = this.clock.timeNow();
-    const expireAt: number = this.clock.calculateTTL(time, ttl);
+    const expireAt: number = this.clock.calculateExpire(time, ttl);
 
-    this.cache.set(key, [value, expireAt]);
-
-    this.policy.onSet(key);
-
-    // if (this.cache.size > this.capacity && this.policy === "LRU") {
-    //   // const context: Context = getStrategy();
-    //   this.history = this.context.executeStrategy(
-    //     this.cache.size,
-    //     this.history,
-    //     key,
-    //   );
-    //
-    //   const k = this.history.pop();
-    //   this.delete(k);
-    // }
-    //
-    // if (this.cache.size > this.capacity && this.policy === "Normal") {
-    //   const key = this.history[0];
-    //   this.delete(key);
-    // }
-    //
-    // this.history.push(key);
-  }
-
-  get(key: K): V | undefined {
-    //todo update time if policy dictates is
-    const time = this.clock.advanceMs(this.ttl.value);
-    if (time <= 0) {
-      // evict
+    if (ttl) {
+      this.cache.set(key, [value, expireAt]);
     } else {
-      // refresh time
+      this.cache.set(key, [value, null]);
     }
-    return this.cache.get(key);
+
+    this.policy.onSet(key as string);
+
+    if (this.cache.size > this.capacity) {
+      const lru = this.policy.evictKey();
+      this.delete(lru);
+    }
   }
 
-  delete(key: K | undefined): void {
+  get(key: string): [V, number | null] | undefined {
+    this.policy.onGet(key);
+    return this.cache.get(key as K);
+  }
+
+  delete(key: string | undefined): void {
     if (key === undefined) {
       throw new Error("Key is missing");
     }
-    this.cache.delete(key);
+    this.cache.delete(key as K);
   }
 
   size(): number {

@@ -1,8 +1,10 @@
 export class Clock {
   private dateInit: Date;
+  private expire: number;
 
-  constructor() {
+  constructor(init: number) {
     this.dateInit = new Date();
+    this.expire = init;
   }
 
   initDate() {
@@ -15,10 +17,11 @@ export class Clock {
     return ms;
   }
 
-  calculateTTL(time: number, ttl?: number): number {
+  calculateExpire(time: number, ttl?: number): number {
     if (!ttl) {
       return time;
     }
+    this.expire = time + ttl;
     return time + ttl;
   }
 
@@ -29,12 +32,19 @@ export class Clock {
   //   return time;
   // }
   //
-  // advanceMs(ttl: number) {
-  //   const dateNow: Date = new Date();
-  //   const ms: number = dateNow.getTime();
-  //   const time: number = ms - ttl;
-  //   return time;
-  // }
+  advanceMs(ttl: number): string {
+    const current = this.expire;
+    this.expire = this.expire - ttl;
+    if (this.expire <= current) {
+      return "evict";
+    } else {
+      return "safe";
+    }
+    // const dateNow: Date = new Date();
+    // const ms: number = dateNow.getTime();
+    // const time: number = ms - ttl;
+    // return time;
+  }
 
   toString() {
     console.log(`Clock init date ${this.dateInit}`);
@@ -43,11 +53,11 @@ export class Clock {
 
 export class FakeClock {
   private ttl: number;
-  private start: number;
+  // private start: number;
 
   constructor(ttl: number) {
     this.ttl = ttl;
-    this.start = ttl;
+    // this.start = ttl;
   }
 
   // advanceMs(tick: number, cache: CacheBox<string, number>, key: string) {

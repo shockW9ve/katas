@@ -3,6 +3,6 @@ import type { Policy } from "./policies.js";
 
 export type CacheRequest = {
   capacity: number;
-  clock: Clock;
+  clock: Clock | FakeClock;
   policy: Policy;
 };
