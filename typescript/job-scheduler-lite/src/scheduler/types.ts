@@ -1,13 +1,32 @@
 export type Priority = "Low" | "Medium" | "High";
-export type JobStatus = "Queued" | "Running" | "Completed" | "Failed";
 
-export interface JobId {
-  id: string;
+export type JobStatus =
+  | "Queued"
+  | "Running"
+  | "Completed"
+  | "Failed"
+  | "Poisoned";
+
+export type JobId = string;
+
+export interface NewJob {
+  jobId: JobId;
+  name: string;
+  priority: Priority;
+  maxRetries: number;
+}
+
+export interface ScheduledJob {
+  jobId: JobId;
+  name: string;
+  priority: Priority;
+  status: JobStatus;
+  attempts: number;
+  maxRetries: number;
 }
 
 export interface Job {
-  // id: JobId;
-  id: string;
+  jobId: JobId;
   name: string;
   priority: Priority;
   status?: JobStatus;
@@ -15,7 +34,14 @@ export interface Job {
   maxRetries: number;
 }
 
-export interface SchedulerResult {}
+export interface SchedulerResult {
+  jobId: JobId;
+  name: string;
+  priority: Priority;
+  status: JobStatus;
+  attempts: number;
+  maxRetries: number;
+}
 
 export interface QueuePolicy {
   onQueued(): void;
@@ -25,10 +51,10 @@ export interface QueuePolicy {
 }
 
 export interface SchedulerBlueprint {
-  enqueue(job: Job): void;
-  next(): Job | null;
+  enqueue(job: Job): SchedulerResult;
+  next(): SchedulerResult | undefined;
   markCompleted(jobId: JobId): void;
   markFailed(jobId: JobId): void;
-  get(jobId: JobId): Job | null;
-  all(): Job[];
+  get(jobId: JobId): SchedulerResult;
+  all(): Map<JobId, Job>;
 }

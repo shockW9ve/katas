@@ -7,7 +7,7 @@ describe("Job Scheduler Lite", () => {
     const scheduler = createScheduler();
 
     const job = scheduler.enqueue({
-      id: "job-1",
+      jobId: { id: "job-1" },
       name: "Import customers",
       priority: "Medium",
       maxRetries: 2,
@@ -15,28 +15,28 @@ describe("Job Scheduler Lite", () => {
 
     expect(job.status).toBe("Queued");
     expect(job.attempts).toBe(0);
-    expect(scheduler.get("job-1")).toEqual(job);
+    expect(scheduler.get(job.jobId)).toEqual(job);
   });
 
   it("2) next picks the highest priority queued job", () => {
     const scheduler = createScheduler();
 
     scheduler.enqueue({
-      id: "job-1",
+      jobId: { id: "job-1" },
       name: "Low",
       priority: "Low",
       maxRetries: 1,
     });
 
     scheduler.enqueue({
-      id: "job-2",
+      jobId: { id: "job-2" },
       name: "High",
       priority: "High",
       maxRetries: 1,
     });
 
     scheduler.enqueue({
-      id: "job-3",
+      jobId: { id: "job-3" },
       name: "Mid",
       priority: "Medium",
       maxRetries: 1,
@@ -44,7 +44,8 @@ describe("Job Scheduler Lite", () => {
 
     const next = scheduler.next();
 
-    expect(next?.id).toBe("job-2");
+    expect(scheduler.all().size).toBe(3);
+    expect(next?.jobId.id).toBe("job-2");
     expect(next?.status).toBe("Running");
   });
 
