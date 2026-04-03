@@ -31,6 +31,8 @@ class Scheduler implements SchedulerBlueprint {
   }
 
   next(): SchedulerResult | undefined {
+    // todo initialize objects
+    // only look at jobs with status queued
     let high: SchedulerResult, mid: Job, low: Job;
 
     this.queue.forEach((value) => {
@@ -60,46 +62,6 @@ class Scheduler implements SchedulerBlueprint {
       return low;
     }
   }
-
-  // for (let [key, values] of this.queue) {
-  //   if (values.priority === "High") {
-  //     values.status = "Running";
-  //     values.attempts! += 1;
-  //     return values as SchedulerResult;
-  //   } else if (values.priority === "Medium") {
-  //     values.status = "Running";
-  //     values.attempts! += 1;
-  //     return values as SchedulerResult;
-  //   } else {
-  //     values.status = "Running";
-  //     values.attempts! += 1;
-  //     return values as SchedulerResult;
-  //   }
-
-  // switch (values.priority) {
-  //   case "High":
-  //     values.status = "Running";
-  //     values.attempts! += 1;
-  //     return values as SchedulerResult;
-  //   // return this.buildJob(values);
-  //
-  //   case "Medium":
-  //     values.status = "Running";
-  //     values.attempts! += 1;
-  //     return values as SchedulerResult;
-  //
-  //   // return this.buildJob(values);
-  //   case "Low":
-  //     values.status = "Running";
-  //     values.attempts! += 1;
-  //     return values as SchedulerResult;
-  //
-  //   // return this.buildJob(values);
-  //   default:
-  //     return undefined;
-  // }
-  //   }
-  // }
 
   markCompleted(jobId: JobId): void {
     const job = this.queue.get(jobId);
