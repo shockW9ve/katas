@@ -1,0 +1,9 @@
+dist/
+stryker-tmp/
+reports/
+coverage/
+*.js
+*.js.map
+*.d.ts
+*.d.ts.map
+
