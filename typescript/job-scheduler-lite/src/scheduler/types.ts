@@ -1,20 +1,21 @@
-type Priority = "Low" | "Medium" | "High";
-type JobStatus = "Queued" | "Running" | "Completed" | "Failed";
+export type Priority = "Low" | "Medium" | "High";
+export type JobStatus = "Queued" | "Running" | "Completed" | "Failed";
 
-interface JobId {
+export interface JobId {
   id: string;
 }
 
-interface Job {
-  id: JobId;
+export interface Job {
+  // id: JobId;
+  id: string;
   name: string;
   priority: Priority;
-  status: JobStatus;
-  attemps: number;
-  maxAttemps: number;
+  status?: JobStatus;
+  attempts?: number;
+  maxRetries: number;
 }
 
-interface SchedulerResult {}
+export interface SchedulerResult {}
 
 export interface QueuePolicy {
   onQueued(): void;
@@ -24,10 +25,10 @@ export interface QueuePolicy {
 }
 
 export interface SchedulerBlueprint {
-  enqueue(jobInput);
-  next();
-  markCompleted();
-  markFailed();
-  get(jobid);
-  all();
+  enqueue(job: Job): void;
+  next(): Job | null;
+  markCompleted(jobId: JobId): void;
+  markFailed(jobId: JobId): void;
+  get(jobId: JobId): Job | null;
+  all(): Job[];
 }
