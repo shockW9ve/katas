@@ -1,105 +1,96 @@
 import { describe, it, expect } from "vitest";
-import { Clock, FakeClock } from "../src/cache/clock.js";
 import { createCache } from "../src/cache/cache.js";
-import { Policy } from "../src/cache/policies.js";
+import { FakeClock, RealClock } from "../src/cache/clock.js";
+import { lruPolicy, normalPolicy } from "../src/cache/policies.js";
 
-describe("Cachebox", () => {
+describe("CacheBox", () => {
   it("1) set/get returns value", () => {
-    // arrange
-    // const clock = new FakeClock(0);
-    const clock = new Clock();
-    const cache = createCache({
+    const clock = new RealClock();
+    const cache = createCache<string, number>({
       capacity: 10,
       clock,
-      policy: new Policy(),
+      policy: normalPolicy<string>(),
     });
-    // act
+
     cache.set("a", 1);
-    // assert
+
     expect(cache.get("a")).toBe(1);
   });
 
-  it("2) missing key return undefined", () => {
-    // arrange
-    // const clock = new FakeClock(0);
-    const clock = new Clock();
-    const cache = createCache({
+  it("2) missing key returns undefined", () => {
+    const clock = new RealClock();
+    const cache = createCache<string, number>({
       capacity: 10,
       clock,
-      policy: new Policy(),
+      policy: normalPolicy<string>(),
     });
-    // act
-    // assert
+
     expect(cache.get("nope")).toBeUndefined();
   });
 
   it("3) overwriting key updates value and refreshes TTL if provided", () => {
-    // const clock = new FakeClock(0);
-    const clock = new Clock(0);
-    const cache = createCache({
+    const clock = new FakeClock(0);
+    const cache = createCache<string, number>({
       capacity: 10,
       clock,
-      policy: new Policy(),
+      policy: normalPolicy<string>(),
     });
 
     cache.set("a", 1, 1000);
+    clock.advanceMs(500);
     cache.set("a", 2, 1000);
-    expect(cache.get("a")).toContain(2);
+
+    clock.advanceMs(600);
+    expect(cache.get("a")).toBe(2);
   });
 
   it("4) TTL expiry: item becomes unavailable after ttl", () => {
-    // const clock = new FakeClock(1000);
-    const clock = new Clock(1000);
-    const cache = createCache({
+    const clock = new FakeClock(0);
+    const cache = createCache<string, number>({
       capacity: 10,
       clock,
-      policy: new Policy(),
+      policy: normalPolicy<string>(),
     });
-    const key = "a";
-    cache.set(key, 1, 1000);
-    clock.advanceMs(999);
-    expect(cache.get("a")).toContain(1);
 
-    const response = clock.advanceMs(1);
-    if (response === "evict") {
-      cache.delete(key);
-    }
+    cache.set("a", 1, 1000);
+
+    clock.advanceMs(999);
+    expect(cache.get("a")).toBe(1);
+
+    clock.advanceMs(1);
     expect(cache.get("a")).toBeUndefined();
   });
 
   it("5) capacity: when full, setting a new key evicts exactly one key", () => {
     const clock = new FakeClock(0);
-    const cache = createCache({
+    const cache = createCache<string, number>({
       capacity: 2,
       clock,
-      policy: "LRU",
+      policy: lruPolicy<string>(),
     });
 
     cache.set("a", 1);
     cache.set("b", 2);
     cache.set("c", 3);
 
-    // Expect size stays at capacity.
     expect(cache.size()).toBe(2);
   });
 
   it("6) LRU behavior: recently accessed key should not be evicted", () => {
     const clock = new FakeClock(0);
-    const cache = createCache({
+    const cache = createCache<string, number>({
       capacity: 2,
       clock,
-      policy: "LRU",
+      policy: lruPolicy<string>(),
     });
 
     cache.set("a", 1);
     cache.set("b", 2);
 
-    // touch "a" so "b" becomes least recently used
     expect(cache.get("a")).toBe(1);
 
     cache.set("c", 3);
 
-    // After eviction, "a" should still exist, and "b" should be gone.
     expect(cache.get("a")).toBe(1);
     expect(cache.get("b")).toBeUndefined();
     expect(cache.get("c")).toBe(3);

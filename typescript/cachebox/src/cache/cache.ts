@@ -1,83 +1,77 @@
-import {
-  ConcreteStrategyLRU,
-  Context,
-  getLRUStrategy,
-  getNormalStrategy,
-} from "../pattern/strategy.js";
-import type { Clock, FakeClock } from "./clock.js";
-import type { Policy } from "./policies.js";
-import type { CacheRequest } from "./types.js";
+import type { CacheRequest, Entry } from "./types.js";
 
-export function createCache(request: CacheRequest): CacheBox<string, number> {
-  const cache = new CacheBox<string, number>(request);
-  return cache;
+export function createCache<K, V>(request: CacheRequest<K>): CacheBox<K, V> {
+  return new CacheBox<K, V>(request);
 }
 
 export class CacheBox<K, V> {
-  // private history: Array<K | undefined> = [];
-  private readonly cache: Map<K, [V, number | null]> = new Map();
+  private readonly cache = new Map<K, Entry<V>>();
   private readonly capacity: number;
+  private readonly clock;
+  private readonly policy;
 
-  // private context: Context;
-  private clock: Clock; //FakeClock;
-  private policy: Policy<K>;
-  // private readonly ttl: { value: number; expiresAt?: number };
-
-  constructor(request: CacheRequest) {
+  constructor(request: CacheRequest<K>) {
     this.capacity = request.capacity;
     this.clock = request.clock;
     this.policy = request.policy;
-    // this.context = this.strategy();
   }
 
-  // strategy(): Context {
-  //   if (this.policy === "LRU") {
-  //     return getLRUStrategy();
-  //   } else {
-  //     return getNormalStrategy();
-  //   }
-  // }
+  set(key: K, value: V, ttlMs?: number): void {
+    const now = this.clock.msNow();
+    const expiresAt = ttlMs === undefined ? null : now + ttlMs;
 
-  set(key: K, value: V, ttl?: number): void {
-    // TODO:
-    // check/update expiry metadata
-    //
-    // update value
-    //
-    // notify policy
-    //
-    // evict if over capacity
-    // todo calc expires at value
-    const time: number = this.clock.msNow();
-
-    if (ttl) {
-      const expireAt: number = time + ttl;
-      this.cache.set(key, [value, expireAt]);
-    } else {
-      this.cache.set(key, [value, null]);
-    }
-
+    this.cache.set(key, { value, expiresAt });
     this.policy.onSet(key);
 
     if (this.cache.size > this.capacity) {
-      const lru = this.policy.evictKey();
-      this.delete(lru);
+      const victim = this.policy.evictKey();
+      if (victim !== undefined) {
+        this.deleteInternal(victim);
+      }
     }
   }
 
   get(key: K): V | undefined {
+    const entry = this.cache.get(key);
+    if (!entry) {
+      return undefined;
+    }
+
+    if (this.isExpired(entry)) {
+      this.deleteInternal(key);
+      return undefined;
+    }
+
     this.policy.onGet(key);
-    return this.cache.get(key)?.[0];
+    return entry.value;
   }
 
-  delete(key: K | undefined): void {
-    if (key === undefined) {
-      throw new Error("Key is missing");
-    }
-    this.cache.delete(key);
+  delete(key: K): boolean {
+    return this.deleteInternal(key);
   }
 
   size(): number {
+    this.purgeExpired();
     return this.cache.size;
+  }
+
+  private isExpired(entry: Entry<V>): boolean {
+    return entry.expiresAt !== null && this.clock.msNow() >= entry.expiresAt;
+  }
+
+  private purgeExpired(): void {
+    for (const [key, entry] of this.cache.entries()) {
+      if (this.isExpired(entry)) {
+        this.deleteInternal(key);
+      }
+    }
+  }
+
+  private deleteInternal(key: K): boolean {
+    const deleted = this.cache.delete(key);
+    if (deleted) {
+      this.policy.onDelete(key);
+    }
+    return deleted;
   }
 }

@@ -1,27 +1,43 @@
-export class Policy<K> {
-  private evictionOrder: Array<K | undefined> = [];
+import type { EvictionPolicy } from "./types.js";
+
+export class NoopPolicy<K> implements EvictionPolicy<K> {
+  onGet(_key: K): void {}
+  onSet(_key: K): void {}
+  onDelete(_key: K): void {}
+  evictKey(): K | undefined {
+    return undefined;
+  }
+}
+
+export class LruPolicy<K> implements EvictionPolicy<K> {
+  private order: K[] = [];
+
+  private touch(key: K): void {
+    this.order = this.order.filter((k) => k !== key);
+    this.order.push(key);
+  }
 
   onGet(key: K): void {
-    for (let item = 0; item < this.evictionOrder.length; item++) {
-      if (this.evictionOrder[item] === key) {
-        const temp = this.evictionOrder[0];
-        this.evictionOrder[0] = this.evictionOrder[item];
-        this.evictionOrder[item] = temp;
-      }
-    }
+    this.touch(key);
   }
 
   onSet(key: K): void {
-    for (let item = 0; item < this.evictionOrder.length; item++) {
-      if (this.evictionOrder[item] === key) {
-        this.evictionOrder = this.evictionOrder.filter((item) => item !== key);
-        // or simply return without filtering
-      }
-    }
-    this.evictionOrder.push(key);
+    this.touch(key);
+  }
+
+  onDelete(key: K): void {
+    this.order = this.order.filter((k) => k !== key);
   }
 
   evictKey(): K | undefined {
-    return this.evictionOrder.shift();
+    return this.order.shift();
   }
+}
+
+export function normalPolicy<K>(): EvictionPolicy<K> {
+  return new NoopPolicy<K>();
+}
+
+export function lruPolicy<K>(): EvictionPolicy<K> {
+  return new LruPolicy<K>();
 }

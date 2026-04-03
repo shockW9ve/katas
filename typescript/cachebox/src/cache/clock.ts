@@ -1,34 +1,29 @@
-export class Clock {
-  private dateInit: Date;
+import type { Clock } from "./types.js";
+
+export class RealClock implements Clock {
+  private readonly startedAt: number;
 
   constructor() {
-    this.dateInit = new Date();
-  }
-
-  initDate() {
-    return this.dateInit;
+    this.startedAt = Date.now();
   }
 
   msNow(): number {
-    const dateNow: Date = new Date();
-    const ms: number = dateNow.getTime();
-    const time: number = ms - this.dateInit.getTime();
-    return time;
-  }
-
-  toString() {
-    console.log(`Clock init date ${this.dateInit}`);
+    return Date.now() - this.startedAt;
   }
 }
 
-export class FakeClock {
-  private ttlStart: number;
+export class FakeClock implements Clock {
+  private currentMs: number;
 
-  constructor(ttl: number) {
-    this.ttlStart = ttl;
+  constructor(startMs = 0) {
+    this.currentMs = startMs;
   }
 
-  advanceMs(ttl: number): void {
-    this.ttlStart = this.ttlStart - ttl;
+  msNow(): number {
+    return this.currentMs;
+  }
+
+  advanceMs(ms: number): void {
+    this.currentMs += ms;
   }
 }
