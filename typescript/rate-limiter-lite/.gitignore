@@ -1,0 +1,7 @@
+dist/
+coverage/
+reports/
+*.js
+*.js.map
+*.d.ts
+*.d.ts.map

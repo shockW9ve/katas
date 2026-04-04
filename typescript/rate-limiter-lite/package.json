@@ -1,0 +1,24 @@
+{
+  "name": "rate-limiter-lite",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "mut": "stryker run"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@stryker-mutator/core": "^9.6.0",
+    "@stryker-mutator/typescript-checker": "^9.6.0",
+    "@stryker-mutator/vitest-runner": "^9.6.0",
+    "@types/node": "^25.5.2",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.2"
+  }
+}
