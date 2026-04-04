@@ -7,7 +7,7 @@ describe("Job Scheduler Lite", () => {
     const scheduler = createScheduler();
 
     const job = scheduler.enqueue({
-      jobId: { id: "job-1" },
+      jobId: "job-1",
       name: "Import customers",
       priority: "Medium",
       maxRetries: 2,
@@ -22,21 +22,21 @@ describe("Job Scheduler Lite", () => {
     const scheduler = createScheduler();
 
     scheduler.enqueue({
-      jobId: { id: "job-1" },
+      jobId: "job-1",
       name: "Low",
       priority: "Low",
       maxRetries: 1,
     });
 
     scheduler.enqueue({
-      jobId: { id: "job-2" },
+      jobId: "job-2",
       name: "High",
       priority: "High",
       maxRetries: 1,
     });
 
     scheduler.enqueue({
-      jobId: { id: "job-3" },
+      jobId: "job-3",
       name: "Mid",
       priority: "Medium",
       maxRetries: 1,
@@ -45,7 +45,7 @@ describe("Job Scheduler Lite", () => {
     const next = scheduler.next();
 
     expect(scheduler.all().size).toBe(3);
-    expect(next?.jobId.id).toBe("job-2");
+    expect(next?.jobId).toBe("job-2");
     expect(next?.status).toBe("Running");
   });
 
@@ -53,7 +53,7 @@ describe("Job Scheduler Lite", () => {
     const scheduler = createScheduler();
 
     scheduler.enqueue({
-      id: "job-1",
+      jobId: "job-1",
       name: "A",
       priority: "High",
       maxRetries: 1,
@@ -68,7 +68,7 @@ describe("Job Scheduler Lite", () => {
     const scheduler = createScheduler();
 
     scheduler.enqueue({
-      id: "job-1",
+      jobId: "job-1",
       name: "A",
       priority: "High",
       maxRetries: 1,
@@ -85,39 +85,39 @@ describe("Job Scheduler Lite", () => {
     const scheduler = createScheduler();
 
     scheduler.enqueue({
-      id: "job-1",
+      jobId: "job-1",
       name: "A",
       priority: "High",
       maxRetries: 2,
     });
-
     scheduler.next();
 
     scheduler.markFailed("job-1");
 
     const job = scheduler.get("job-1");
-    expect(job?.status).toBe("Queued");
-    expect(job?.attempts).toBe(1);
+    expect(job.status).toBe("Queued");
+    expect(job.attempts).toBe(1);
   });
 
   it("6) markFailed leaves job failed when retries are exhausted", () => {
     const scheduler = createScheduler();
 
     scheduler.enqueue({
-      id: "job-1",
+      jobId: "job-1",
       name: "A",
       priority: "High",
       maxRetries: 1,
     });
 
-    scheduler.next();
-    scheduler.markFailed("job-1");
+    scheduler.next(); // attempts = 1, status = Running
+    scheduler.markFailed("job-1"); // retry allowed -> Queued
 
-    scheduler.next();
-    scheduler.markFailed("job-1");
+    scheduler.next(); // attempts = 2, status = Running
+    scheduler.markFailed("job-1"); // retry not allowed -> Failed
 
     const job = scheduler.get("job-1");
-    expect(job?.status).toBe("Failed");
-    expect(job?.attempts).toBe(2);
+
+    expect(job.status).toBe("Failed");
+    expect(job.attempts).toBe(2);
   });
 });

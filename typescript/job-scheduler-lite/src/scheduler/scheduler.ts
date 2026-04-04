@@ -1,20 +1,20 @@
 import type {
-  Job,
   JobId,
-  QueuePolicy,
+  NewJob,
+  RetryPolicy,
+  ScheduledJob,
   SchedulerBlueprint,
   SchedulerResult,
 } from "./types.js";
-
-import { normalPolicy } from "./retryPolicy.js";
+import { maxRetryPolicy } from "./retryPolicy.js";
 
 class Scheduler implements SchedulerBlueprint {
-  private queue: Map<JobId, Job> = new Map();
-  private policy: QueuePolicy = normalPolicy();
+  private readonly queue = new Map<JobId, ScheduledJob>();
+  private readonly policy: RetryPolicy = maxRetryPolicy();
 
-  private buildJob(job: Job): SchedulerResult {
+  private createEnqueuedJob(job: NewJob): ScheduledJob {
     return {
-      jobId: job.jobId, //{ id: job.jobId.id },
+      jobId: job.jobId,
       name: job.name,
       priority: job.priority,
       status: "Queued",
@@ -23,88 +23,94 @@ class Scheduler implements SchedulerBlueprint {
     };
   }
 
-  enqueue(job: Job): SchedulerResult {
-    const toQueue = this.buildJob(job);
+  private priorityRank(priority: ScheduledJob["priority"]): number {
+    switch (priority) {
+      case "High":
+        return 3;
+      case "Medium":
+        return 2;
+      case "Low":
+        return 1;
+    }
+  }
 
-    this.queue.set(toQueue.jobId, toQueue);
-    return toQueue;
+  enqueue(job: NewJob): SchedulerResult {
+    const queuedJob = this.createEnqueuedJob(job);
+    this.queue.set(queuedJob.jobId, queuedJob);
+    return { ...queuedJob };
   }
 
   next(): SchedulerResult | undefined {
-    // todo initialize objects
-    // only look at jobs with status queued
-    let high: SchedulerResult, mid: Job, low: Job;
+    let candidate: ScheduledJob | undefined;
 
-    this.queue.forEach((value) => {
-      if (value.priority === "High") {
-        high = value;
-      } else if (value.priority === "Medium") {
-        mid = value;
-      } else {
-        low = value;
+    for (const job of this.queue.values()) {
+      if (job.status !== "Queued") {
+        continue;
       }
-    });
 
-    if (high) {
-      high.status = "Running";
-      high.attempts += 1;
-      this.queue.set(high.jobId, high);
-      return high;
-    } else if (mid) {
-      mid.status = "Running";
-      mid.attempts += 1;
-      this.queue.set(mid.jobId, mid);
-      return mid;
-    } else {
-      low.status = "Running";
-      low.attempts += 1;
-      this.queue.set(low.jobId, low);
-      return low;
+      if (
+        !candidate ||
+        this.priorityRank(job.priority) > this.priorityRank(candidate.priority)
+      ) {
+        candidate = job;
+      }
     }
+
+    if (!candidate) {
+      return undefined;
+    }
+
+    const updated: ScheduledJob = {
+      ...candidate,
+      status: "Running",
+      attempts: candidate.attempts + 1,
+    };
+
+    this.queue.set(updated.jobId, updated);
+    return { ...updated };
   }
 
   markCompleted(jobId: JobId): void {
     const job = this.queue.get(jobId);
     if (!job) {
-      throw new Error(`Job not found with id: ${jobId.id}`);
+      throw new Error(`Job not found with id: ${jobId}`);
     }
 
-    job.status! = "Completed";
-    this.queue.set(jobId, job);
+    if (job.status !== "Running") {
+      throw new Error("Only running jobs can be completed");
+    }
+
+    this.queue.set(jobId, { ...job, status: "Completed" });
   }
 
   markFailed(jobId: JobId): void {
     const job = this.queue.get(jobId);
-    if (!job || !job.attempts) {
-      throw new Error(`Job not found with id: ${jobId.id}`);
+    if (!job) {
+      throw new Error(`Job not found with id: ${jobId}`);
     }
 
-    if (job.attempts <= job.maxRetries) {
-      job.status = "Queued";
-    } else {
-      job.status = "Failed";
+    if (job.status !== "Running") {
+      throw new Error("Only running jobs can fail");
     }
 
-    this.queue.set(jobId, job);
+    const nextStatus = this.policy.shouldRetry(job) ? "Queued" : "Failed";
+    this.queue.set(jobId, { ...job, status: nextStatus });
   }
 
   get(jobId: JobId): SchedulerResult {
     const job = this.queue.get(jobId);
     if (!job) {
-      throw new Error(`Job not found with id: ${jobId.id}`);
+      throw new Error(`Job not found with id: ${jobId}`);
     }
 
-    const toQueue = this.buildJob(job);
-
-    return toQueue;
+    return { ...job };
   }
 
-  all(): Map<JobId, Job> {
-    // enqueue all jobs or just return the queue?
-    return this.queue;
+  all(): ReadonlyMap<JobId, ScheduledJob> {
+    return new Map(this.queue);
   }
 }
 
-export function createScheduler() {
+export function createScheduler(): SchedulerBlueprint {
   return new Scheduler();
 }
