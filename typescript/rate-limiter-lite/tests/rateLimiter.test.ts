@@ -23,7 +23,7 @@ describe("Rate Limiter Lite", () => {
       policy: fixedWindowPolicy({ limit: 2, windowMs: 1000 }),
     });
 
-    expect(limiter.allow("user-1").allowed).toBe(true);
+    limiter.policy.expect(limiter.allow("user-1").allowed).toBe(true);
     expect(limiter.allow("user-1").allowed).toBe(true);
     expect(limiter.allow("user-1").allowed).toBe(false);
   });
