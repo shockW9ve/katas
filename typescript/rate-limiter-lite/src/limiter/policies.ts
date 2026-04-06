@@ -66,6 +66,17 @@ class FixedWindowPolicy implements RateLimitPolicy {
   }
 }
 
+class SlidingWindowPolicy {
+  constructor(config: PolicyConfig) {
+    config.limit;
+    config.windowMs;
+  }
+}
+
 export function fixedWindowPolicy(config: PolicyConfig): RateLimitPolicy {
   return new FixedWindowPolicy(config);
+}
+
+export function slidingWindowPolicy(config: PolicyConfig): RateLimitPolicy {
+  return new SlidingWindowPolicy(config);
 }
