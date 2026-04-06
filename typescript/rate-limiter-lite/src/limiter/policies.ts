@@ -1,21 +1,36 @@
 import type {
   RateLimitPolicy,
   RateLimitDecision,
-  ClientKey,
-  ClientInfo,
+  ClientWindow,
+  PolicyConfig,
 } from "./types.ts";
 class FixedWindowPolicy implements RateLimitPolicy {
-  private clients = new Map<ClientKey, ClientInfo>();
+  private limit: number;
+  private windowMs: number;
 
-  allow(key: string, nowMs: number): RateLimitDecision {
-    // look up key
-    // look up starttime for that key
-    // return decision
+  constructor(info: PolicyConfig) {
+    this.limit = info.limit;
+    this.windowMs = info.windowMs;
   }
 
-  fixedWindow(info: ClientInfo) {}
+  allow(client: ClientWindow): RateLimitDecision {
+    if (client.count <= this.limit) {
+      return { allowed: true, remaining: this.limit - client.count };
+    }
+
+    // if (client.startMs > this.windowMs) {
+    //   return { allowed: true, remaining: this.limit };
+    // }
+
+    return { allowed: false, remaining: this.limit - client.count };
+  }
+
+  adjustFixedWindow(info: PolicyConfig) {
+    this.limit = info.limit;
+    this.windowMs = info.windowMs;
+  }
 }
 
-export function fixedWindowPolicy(): RateLimitPolicy {
-  return new FixedWindowPolicy();
+export function fixedWindowPolicy(info: PolicyConfig): RateLimitPolicy {
+  return new FixedWindowPolicy(info);
 }

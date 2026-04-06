@@ -1,8 +1,9 @@
 import type {
   ClientKey,
+  ClientWindow,
+  RateLimitDecision,
   RateLimitPolicy,
   RateLimitRequest,
-  Window,
 } from "./types.js";
 
 class RateLimiter {
@@ -15,7 +16,38 @@ class RateLimiter {
     this.clock = request.clock;
   }
 
-  allow(key: string, nowMs: number) {
-    this.policy.allow(key, nowMs);
+  allow(key: string): RateLimitDecision {
+    // ms now
+    //find client
+    const client = this.map.get(key);
+    //if not found set client
+    if (client === undefined) {
+      this.map.set(key, { count: 1, startMs: this.clock.startMs() });
+    } else {
+      this.map.set(key, {
+        count: client.count + 1,
+        startMs: client.startMs,
+      });
+    }
+
+    const refreshedClient = this.map.get(key);
+
+    if (refreshedClient === undefined) {
+      throw new Error();
+    }
+
+    //ask policy if ok
+
+    const response = this.policy.allow(refreshedClient);
+
+    if (response.remaining <= 0) {
+      this.map.set(key, { count: 0, startMs: refreshedClient.startMs });
+    }
+
+    return response;
   }
+}
+
+export function createRateLimiter(request: RateLimitRequest) {
+  return new RateLimiter(request);
 }

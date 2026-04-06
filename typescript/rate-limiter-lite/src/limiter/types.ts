@@ -1,7 +1,8 @@
 import type { FakeClock, RealClock } from "./clock.js";
 
 export interface RateLimitPolicy {
-  allow(key: string, nowMs: number): RateLimitDecision;
+  allow(client: ClientWindow): RateLimitDecision;
+  adjustFixedWindow(info: PolicyConfig): void;
 }
 
 export interface RateLimitDecision {
@@ -19,7 +20,7 @@ export interface ClientWindow {
   startMs: number;
 }
 
-export interface ClientInfo {
+export interface PolicyConfig {
   limit: number;
   windowMs: number;
 }
@@ -27,3 +28,7 @@ export interface ClientInfo {
 export type ClientKey = string;
 
 export type Clock = RealClock | FakeClock;
+export interface ClockConfig {
+  startMs(): number;
+  nowMs(): number;
+}
