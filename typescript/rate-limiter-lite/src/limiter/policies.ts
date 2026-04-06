@@ -1,36 +1,71 @@
 import type {
-  RateLimitPolicy,
-  RateLimitDecision,
+  ClientKey,
   ClientWindow,
   PolicyConfig,
-} from "./types.ts";
-class FixedWindowPolicy implements RateLimitPolicy {
-  private limit: number;
-  private windowMs: number;
+  RateLimitDecision,
+  RateLimitPolicy,
+} from "./types.js";
 
-  constructor(info: PolicyConfig) {
-    this.limit = info.limit;
-    this.windowMs = info.windowMs;
+class FixedWindowPolicy implements RateLimitPolicy {
+  private readonly limit: number;
+  private readonly windowMs: number;
+  private readonly clients = new Map<ClientKey, ClientWindow>();
+
+  constructor(config: PolicyConfig) {
+    this.limit = config.limit;
+    this.windowMs = config.windowMs;
   }
 
-  allow(client: ClientWindow): RateLimitDecision {
-    if (client.count <= this.limit) {
-      return { allowed: true, remaining: this.limit - client.count };
+  allow(key: ClientKey, nowMs: number): RateLimitDecision {
+    const current = this.clients.get(key);
+
+    if (!current) {
+      this.clients.set(key, {
+        count: 1,
+        windowStartMs: nowMs,
+      });
+
+      return {
+        allowed: true,
+        remaining: this.limit - 1,
+      };
     }
 
-    // if (client.startMs > this.windowMs) {
-    //   return { allowed: true, remaining: this.limit };
-    // }
+    const windowExpired = nowMs >= current.windowStartMs + this.windowMs;
 
-    return { allowed: false, remaining: this.limit - client.count };
-  }
+    if (windowExpired) {
+      this.clients.set(key, {
+        count: 1,
+        windowStartMs: nowMs,
+      });
 
-  adjustFixedWindow(info: PolicyConfig) {
-    this.limit = info.limit;
-    this.windowMs = info.windowMs;
+      return {
+        allowed: true,
+        remaining: this.limit - 1,
+      };
+    }
+
+    if (current.count >= this.limit) {
+      return {
+        allowed: false,
+        remaining: 0,
+      };
+    }
+
+    const updated: ClientWindow = {
+      count: current.count + 1,
+      windowStartMs: current.windowStartMs,
+    };
+
+    this.clients.set(key, updated);
+
+    return {
+      allowed: true,
+      remaining: this.limit - updated.count,
+    };
   }
 }
 
-export function fixedWindowPolicy(info: PolicyConfig): RateLimitPolicy {
-  return new FixedWindowPolicy(info);
+export function fixedWindowPolicy(config: PolicyConfig): RateLimitPolicy {
+  return new FixedWindowPolicy(config);
 }

@@ -1,37 +1,29 @@
-import type { ClockConfig } from "./types.js";
+import type { Clock } from "./types.js";
 
-export class RealClock implements ClockConfig {
+export class RealClock implements Clock {
   private readonly startedAt: number;
 
   constructor() {
     this.startedAt = Date.now();
   }
 
-  startMs() {
-    return this.startedAt;
-  }
-
-  nowMs() {
+  nowMs(): number {
     return Date.now() - this.startedAt;
   }
 }
 
-export class FakeClock {
-  private start;
+export class FakeClock implements Clock {
+  private currentMs: number;
 
   constructor(startMs = 0) {
-    this.start = startMs;
+    this.currentMs = startMs;
   }
 
-  startMs() {
-    return this.start;
+  nowMs(): number {
+    return this.currentMs;
   }
 
-  nowMs() {
-    return this.startMs;
-  }
-
-  advanceMs(ms: number) {
-    this.start += ms;
+  advanceMs(ms: number): void {
+    this.currentMs += ms;
   }
 }
