@@ -81,26 +81,41 @@ class SlidingWindowPolicy implements RateLimitPolicy {
 
     if (!client) {
       this.clients.set(key, [nowMs]);
-
       return { allowed: true, remaining: this.limit - 1 };
     }
 
-    // todo
-    // allow request under the limit
-    // block with to many request within the window
     // allow again when oldest request falls out of window
-    // tracks different clients indepedently
+    if (client.length >= this.limit) {
+      if (this.windowMs - nowMs === 0) {
+        console.log(this.windowMs - nowMs);
+        const remove: number[] = client.filter(
+          (t) => t === this.windowMs - nowMs,
+        );
 
-    const withInWindow = nowMs - this.windowMs > 0;
+        this.clients.set(key, [...remove]);
 
-    if (withInWindow) {
-      return { allowed: true, remaining: this.limit - 1 };
+        return { allowed: true, remaining: this.limit - remove.length };
+      }
     }
 
-    if (client?.length >= 3) {
+    // block with to many request within the window
+    if (nowMs > this.windowMs || client.length >= this.limit) {
       return { allowed: false, remaining: 0 };
     }
 
+    // tracks different clients indepedently
+
+    // const withInWindow = nowMs - this.windowMs < 0;
+    //
+    // if (withInWindow && client.length < this.limit) {
+    //   return { allowed: true, remaining: this.limit - 1 };
+    // }
+    //
+    // if (client?.length >= 3) {
+    //   return { allowed: false, remaining: 0 };
+    // }
+
+    // allow request under the limit
     const updated: number[] = [...client, nowMs];
 
     this.clients.set(key, updated);
