@@ -83,6 +83,16 @@ class SlidingWindowPolicy implements RateLimitPolicy {
       this.clients.set(key, [nowMs]);
       return { allowed: true, remaining: this.limit - 1 };
     }
+    // todo
+    // any timestamp older than nowMs - windowMs should no longer count
+    //age = nowMs - t
+    // And then ask:
+    //
+    // is age < windowMs ?
+    //read client timestamps or empty array
+    // clean with a filter based on timestamp age
+    // if cleaned length >= limit → block
+    // else append nowMs, save, allow
 
     // allow again when oldest request falls out of window
     if (client.length >= this.limit) {
@@ -104,16 +114,6 @@ class SlidingWindowPolicy implements RateLimitPolicy {
     }
 
     // tracks different clients indepedently
-
-    // const withInWindow = nowMs - this.windowMs < 0;
-    //
-    // if (withInWindow && client.length < this.limit) {
-    //   return { allowed: true, remaining: this.limit - 1 };
-    // }
-    //
-    // if (client?.length >= 3) {
-    //   return { allowed: false, remaining: 0 };
-    // }
 
     // allow request under the limit
     const updated: number[] = [...client, nowMs];
