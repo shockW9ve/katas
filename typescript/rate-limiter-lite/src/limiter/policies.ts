@@ -83,6 +83,25 @@ class SlidingWindowPolicy implements RateLimitPolicy {
       this.clients.set(key, [nowMs]);
       return { allowed: true, remaining: this.limit - 1 };
     }
+
+    const cleaned = [];
+    client.forEach((item) => {
+      console.log("ITEM:" + item);
+      const age = nowMs - item;
+      console.log("AGE" + age);
+      if (age < this.windowMs) {
+        cleaned.push(item);
+      }
+    });
+    console.log(cleaned);
+
+    if (cleaned.length >= this.limit) {
+      return { allowed: false, remaining: 0 };
+    } else {
+      this.clients.set(key, [...client, nowMs]);
+      return { allowed: true, remaining: this.limit - cleaned.length };
+    }
+
     // todo
     // any timestamp older than nowMs - windowMs should no longer count
     //age = nowMs - t
@@ -95,32 +114,32 @@ class SlidingWindowPolicy implements RateLimitPolicy {
     // else append nowMs, save, allow
 
     // allow again when oldest request falls out of window
-    if (client.length >= this.limit) {
-      if (this.windowMs - nowMs === 0) {
-        console.log(this.windowMs - nowMs);
-        const remove: number[] = client.filter(
-          (t) => t === this.windowMs - nowMs,
-        );
-
-        this.clients.set(key, [...remove]);
-
-        return { allowed: true, remaining: this.limit - remove.length };
-      }
-    }
-
-    // block with to many request within the window
-    if (nowMs > this.windowMs || client.length >= this.limit) {
-      return { allowed: false, remaining: 0 };
-    }
-
-    // tracks different clients indepedently
-
-    // allow request under the limit
-    const updated: number[] = [...client, nowMs];
-
-    this.clients.set(key, updated);
-
-    return { allowed: true, remaining: this.limit - updated.length };
+    // if (client.length >= this.limit) {
+    //   if (this.windowMs - nowMs === 0) {
+    //     console.log(this.windowMs - nowMs);
+    //     const remove: number[] = client.filter(
+    //       (t) => t === this.windowMs - nowMs,
+    //     );
+    //
+    //     this.clients.set(key, [...remove]);
+    //
+    //     return { allowed: true, remaining: this.limit - remove.length };
+    //   }
+    // }
+    //
+    // // block with to many request within the window
+    // if (nowMs > this.windowMs || client.length >= this.limit) {
+    //   return { allowed: false, remaining: 0 };
+    // }
+    //
+    // // tracks different clients indepedently
+    //
+    // // allow request under the limit
+    // const updated: number[] = [...client, nowMs];
+    //
+    // this.clients.set(key, updated);
+    //
+    // return { allowed: true, remaining: this.limit - updated.length };
   }
 }
 
