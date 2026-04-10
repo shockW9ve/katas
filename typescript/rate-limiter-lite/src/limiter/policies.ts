@@ -67,8 +67,8 @@ class FixedWindowPolicy implements RateLimitPolicy {
 }
 
 class SlidingWindowPolicy implements RateLimitPolicy {
-  private readonly limit;
-  private readonly windowMs;
+  private readonly limit: number;
+  private readonly windowMs: number;
   private readonly clients = new Map<ClientKey, number[]>();
 
   constructor(config: PolicyConfig) {
@@ -77,69 +77,18 @@ class SlidingWindowPolicy implements RateLimitPolicy {
   }
 
   allow(key: ClientKey, nowMs: number): RateLimitDecision {
-    const client = this.clients.get(key);
+    const client = this.clients.get(key) ?? [];
 
-    if (!client) {
-      this.clients.set(key, [nowMs]);
-      return { allowed: true, remaining: this.limit - 1 };
-    }
-
-    const cleaned = [];
-    client.forEach((item) => {
-      console.log("ITEM:" + item);
-      const age = nowMs - item;
-      console.log("AGE" + age);
-      if (age < this.windowMs) {
-        cleaned.push(item);
-      }
-    });
-    console.log(cleaned);
+    const cleaned = client.filter((item) => nowMs - item < this.windowMs);
 
     if (cleaned.length >= this.limit) {
+      this.clients.set(key, cleaned);
       return { allowed: false, remaining: 0 };
-    } else {
-      this.clients.set(key, [...client, nowMs]);
-      return { allowed: true, remaining: this.limit - cleaned.length };
     }
 
-    // todo
-    // any timestamp older than nowMs - windowMs should no longer count
-    //age = nowMs - t
-    // And then ask:
-    //
-    // is age < windowMs ?
-    //read client timestamps or empty array
-    // clean with a filter based on timestamp age
-    // if cleaned length >= limit → block
-    // else append nowMs, save, allow
-
-    // allow again when oldest request falls out of window
-    // if (client.length >= this.limit) {
-    //   if (this.windowMs - nowMs === 0) {
-    //     console.log(this.windowMs - nowMs);
-    //     const remove: number[] = client.filter(
-    //       (t) => t === this.windowMs - nowMs,
-    //     );
-    //
-    //     this.clients.set(key, [...remove]);
-    //
-    //     return { allowed: true, remaining: this.limit - remove.length };
-    //   }
-    // }
-    //
-    // // block with to many request within the window
-    // if (nowMs > this.windowMs || client.length >= this.limit) {
-    //   return { allowed: false, remaining: 0 };
-    // }
-    //
-    // // tracks different clients indepedently
-    //
-    // // allow request under the limit
-    // const updated: number[] = [...client, nowMs];
-    //
-    // this.clients.set(key, updated);
-    //
-    // return { allowed: true, remaining: this.limit - updated.length };
+    const updated = [...cleaned, nowMs];
+    this.clients.set(key, updated);
+    return { allowed: true, remaining: this.limit - updated.length };
   }
 }
 

@@ -113,33 +113,33 @@ describe("Sliding Window Policy", () => {
     expect(limiter.allow("user-1").allowed).toBe(false);
   });
 
-  // it("allows again once the oldest request falls out of the window", () => {
-  //   const clock = new FakeClock(0);
-  //   const limiter = createRateLimiter({
-  //     clock,
-  //     policy: slidingWindowPolicy({ limit: 2, windowMs: 1000 }),
-  //   });
-  //
-  //   expect(limiter.allow("user-1").allowed).toBe(true); // t=0
-  //   clock.advanceMs(100);
-  //   expect(limiter.allow("user-1").allowed).toBe(true); // t=100
-  //   clock.advanceMs(899);
-  //   expect(limiter.allow("user-1").allowed).toBe(false); // t=999, both still count
-  //
-  //   clock.advanceMs(1); // t=1000, the request at t=0 falls out
-  //   expect(limiter.allow("user-1").allowed).toBe(true);
-  // });
-  //
-  // it("tracks different clients independently", () => {
-  //   const clock = new FakeClock(0);
-  //   const limiter = createRateLimiter({
-  //     clock,
-  //     policy: slidingWindowPolicy({ limit: 1, windowMs: 1000 }),
-  //   });
-  //
-  //   expect(limiter.allow("a").allowed).toBe(true);
-  //   expect(limiter.allow("b").allowed).toBe(true);
-  //   expect(limiter.allow("a").allowed).toBe(false);
-  //   expect(limiter.allow("b").allowed).toBe(false);
-  // });
+  it("allows again once the oldest request falls out of the window", () => {
+    const clock = new FakeClock(0);
+    const limiter = createRateLimiter({
+      clock,
+      policy: slidingWindowPolicy({ limit: 2, windowMs: 1000 }),
+    });
+
+    expect(limiter.allow("user-1").allowed).toBe(true); // t=0
+    clock.advanceMs(100);
+    expect(limiter.allow("user-1").allowed).toBe(true); // t=100
+    clock.advanceMs(899);
+    expect(limiter.allow("user-1").allowed).toBe(false); // t=999, both still count
+
+    clock.advanceMs(1); // t=1000, the request at t=0 falls out
+    expect(limiter.allow("user-1").allowed).toBe(true);
+  });
+
+  it("tracks different clients independently", () => {
+    const clock = new FakeClock(0);
+    const limiter = createRateLimiter({
+      clock,
+      policy: slidingWindowPolicy({ limit: 1, windowMs: 1000 }),
+    });
+
+    expect(limiter.allow("a").allowed).toBe(true);
+    expect(limiter.allow("b").allowed).toBe(true);
+    expect(limiter.allow("a").allowed).toBe(false);
+    expect(limiter.allow("b").allowed).toBe(false);
+  });
 });
