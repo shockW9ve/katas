@@ -4,6 +4,7 @@
   "coverageAnalysis": "perTest",
   "mutate": [
     "src/**/*.ts",
+    "!src/server.ts",
     "!**/*.{spec,test}.ts"
   ],
   "vitest": {
