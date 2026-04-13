@@ -24,11 +24,11 @@ export function createApp() {
   // app.use(cors());
   // app.use(helmet());
   app.use(express.json());
-  app.use("/api/clients", rateLimitRouter);
+  app.use("/api", rateLimitRouter);
 
-  app.get("/health", (_req, res) => {
-    res.json({ ok: true });
-  });
+  // app.get("/health", (_req, res) => {
+  //   res.json({ ok: true });
+  // });
 
   return app;
 }
