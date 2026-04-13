@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node dist/infrastructure/server.js",
+    "dev": "tsx watch dist/infrastructure/server.js",
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -17,14 +19,18 @@
     "@stryker-mutator/core": "^9.6.0",
     "@stryker-mutator/typescript-checker": "^9.6.0",
     "@stryker-mutator/vitest-runner": "^9.6.0",
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^25.6.0",
     "@types/supertest": "^7.2.0",
     "supertest": "^7.2.2",
+    "ts-node": "^10.9.2",
     "typescript": "^6.0.2",
     "vitest": "^4.1.2"
   },
   "dependencies": {
-    "express": "^5.2.1"
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "helmet": "^8.1.0"
   }
 }

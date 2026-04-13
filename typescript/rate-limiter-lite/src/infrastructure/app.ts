@@ -12,10 +12,19 @@
 //   console.log(`Server running on http://localhost:${port}`);
 // });
 //
+// import express, { Application } from "express";
 import express from "express";
+import cors from "cors";
+import helmet from "helmet";
+import rateLimitRouter from "../api/RateLimitRoutes.js";
 
 export function createApp() {
+  // const app: Application = express();
   const app = express();
+  // app.use(cors());
+  // app.use(helmet());
+  app.use(express.json());
+  app.use("/api/clients", rateLimitRouter);
 
   app.get("/health", (_req, res) => {
     res.json({ ok: true });
