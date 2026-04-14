@@ -12,13 +12,15 @@ rateLimitRouter.get("/health", (request, response) => {
 // POST check
 rateLimitRouter.post("/check", (request, response) => {
   const { key } = request.body.key;
+  const result = rateLimitService(key);
 
-  response.status(201).json({ key: key });
-  // const clientKey: ClientKey = request.body.key;
-  // // call service
-  // rateLimitService(clientKey);
-  // check for errors
-  // respond accordingly
+  if (!result) {
+    response.status(500).json({ error: "Something went wrong on the server" });
+  }
+
+  response
+    .status(201)
+    .json({ allowed: result.allowed, remaining: result.remaining });
 });
 
 export default rateLimitRouter;
