@@ -5,21 +5,17 @@ import type { ClientKey } from "../limiter/types.js";
 const rateLimitRouter = Router();
 
 // GET health
-rateLimitRouter.get("/health", (request, response) => {
-  response.json({ health: "Server status ok" });
+rateLimitRouter.get("/health", (_request, response) => {
+  response.json({ ok: true });
 });
 
 // POST check
 rateLimitRouter.post("/check", (request, response) => {
-  const { key } = request.body.key;
-  const result = rateLimitService(key);
-
-  if (!result) {
-    response.status(500).json({ error: "Something went wrong on the server" });
-  }
+  const { key } = request.body;
+  const result = rateLimitService.check(key);
 
   response
-    .status(201)
+    .status(200)
     .json({ allowed: result.allowed, remaining: result.remaining });
 });
 
