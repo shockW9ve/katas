@@ -6,3 +6,8 @@ reports/
 *.d.ts
 *.d.ts.map
 .stryker-tmp/
+node_modules
+.git
+.gitignore
+Dockerfile
+npm-debug.log
