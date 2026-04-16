@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { FakeClock } from "../src/limiter/clock.js";
-import { createRateLimiter } from "../src/limiter/rateLimiter.js";
-import { fixedWindowPolicy } from "../src/limiter/policies.js";
+import { FakeClock } from "../src/domain/limiter/clock.js";
+import { createRateLimiter } from "../src/domain/limiter/rateLimiter.js";
+import { fixedWindowPolicy } from "../src/domain/limiter/policies.js";
 
 describe("Rate Limiter Lite", () => {
   it("1) allows requests under the limit", () => {
@@ -121,7 +121,7 @@ describe("Rate Limiter Lite", () => {
   });
 });
 
-import { slidingWindowPolicy } from "../src/limiter/policies.js";
+import { slidingWindowPolicy } from "../src/domain/limiter/policies.js";
 
 describe("Sliding Window Policy", () => {
   it("allows requests under the limit", () => {
@@ -247,7 +247,7 @@ describe("Sliding Window Policy", () => {
   });
 });
 
-import { RealClock } from "../src/limiter/clock.js";
+import { RealClock } from "../src/domain/limiter/clock.js";
 
 describe("RealClock", () => {
   afterEach(() => {

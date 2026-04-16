@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node dist/infrastructure/server.js",
-    "dev": "tsx watch dist/infrastructure/server.js",
     "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "mut": "stryker run"
@@ -25,6 +25,7 @@
     "@types/supertest": "^7.2.0",
     "supertest": "^7.2.2",
     "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "^6.0.2",
     "vitest": "^4.1.2"
   },

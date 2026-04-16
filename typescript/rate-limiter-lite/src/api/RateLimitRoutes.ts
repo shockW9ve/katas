@@ -1,6 +1,6 @@
-import { response, Router } from "express";
+import { Router } from "express";
 import { rateLimitService } from "../application/RateLimitService.js";
-import type { ClientKey } from "../limiter/types.js";
+import type { ClientKey } from "../domain/limiter/types.js";
 
 const rateLimitRouter = Router();
 
