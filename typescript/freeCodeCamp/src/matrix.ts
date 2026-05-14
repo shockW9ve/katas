@@ -4,13 +4,19 @@ let matrix = [
 ];
 
 console.log(matrix);
+console.log(matrix.length);
+console.log(matrix[0].length);
 
-function createMatrix(rows: number, columns: number, defaultValue = 0) {
+function createMatrix(
+  rows: number,
+  columns: number,
+  defaultValue = 0,
+): number[][] {
   const matrix: number[][] = [];
 
-  for (let i = 0; i < rows; i++) {
+  for (let i = 0; i < columns; i++) {
     const row: number[] = [];
-    for (let j = 0; j < columns; j++) {
+    for (let j = 0; j < rows; j++) {
       row.push(defaultValue);
     }
     matrix.push(row);
@@ -20,7 +26,7 @@ function createMatrix(rows: number, columns: number, defaultValue = 0) {
 }
 
 function transpose(matrix: number[][]): number[][] {
-  if (!matrix || !matrix[0]) {
+  if (!matrix || !matrix[0] || matrix === undefined) {
     throw new Error("Matrix is missing");
   }
 
@@ -28,14 +34,22 @@ function transpose(matrix: number[][]): number[][] {
   const columns = matrix[0].length;
   const transposedMatrix: number[][] = createMatrix(rows, columns);
 
-  for (let i = 0; i < rows; i++) {
-    console.log("1 " + matrix[i]);
+  if (!transposedMatrix) {
+    throw new Error("No matrix was created");
+  }
 
-    for (let j = 0; j < columns; j++) {
-      console.log("2 " + matrix[i][j]);
-      transposedMatrix[i][j] = matrix[i][j];
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < rows; j++) {
+      console.log("I:" + i);
+      console.log("J:" + j);
+      transposedMatrix[j][i] = matrix[i][j];
+      // transposedMatrix[j][i + 1] = matrix[i + 1][j];
+      console.log(transposedMatrix);
     }
   }
+
+  transposedMatrix[transposedMatrix.length][0] = matrix[rows][0];
+  transposedMatrix[transposedMatrix.length][rows] = matrix[rows][rows];
 
   return transposedMatrix;
 }
