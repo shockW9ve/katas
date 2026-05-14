@@ -38,18 +38,14 @@ function transpose(matrix: number[][]): number[][] {
     throw new Error("No matrix was created");
   }
 
-  for (let i = 0; i < rows; i++) {
+  for (let i = 0; i < columns; i++) {
     for (let j = 0; j < rows; j++) {
       console.log("I:" + i);
       console.log("J:" + j);
-      transposedMatrix[j][i] = matrix[i][j];
-      // transposedMatrix[j][i + 1] = matrix[i + 1][j];
+      transposedMatrix[i][j] = matrix[j][i];
       console.log(transposedMatrix);
     }
   }
-
-  transposedMatrix[transposedMatrix.length][0] = matrix[rows][0];
-  transposedMatrix[transposedMatrix.length][rows] = matrix[rows][rows];
 
   return transposedMatrix;
 }
