@@ -7,11 +7,38 @@ function isValidIsbn13(isbn: string): boolean {
   const reg = /\d+/g;
 
   const findNum = isbn.match(reg);
+
   console.log(findNum);
+  const digits = findNum?.map(Number);
+  console.log(digits);
+  const joining = digits?.join("");
+  console.log(joining);
+  const together = joining.split("");
+  console.log(together[0]);
+  console.log(together?.length);
+  const search = isbn.search("-");
+  console.log(search);
+
+  if (findNum === null || search <= 0 || together?.length !== 13) {
+    return false;
+  }
+
+  const calc: [] = [];
+  for (let i = 0, j = together.length; i < together.length; i++, j--) {
+    console.log(together[i]);
+    if (j % 2 > 0) {
+      let first: number = 1:number * together[i];
+      // calc.push(first);
+    } else {
+      // calc.push(together[i] * 3);
+    }
+  }
+  console.log(calc);
+
   // split
   const splitArr = isbn.split("-");
   console.log(splitArr);
-  const singleDigit = splitArr.join().split("");
+  const singleDigit = splitArr.join();
   console.log(singleDigit);
   const onlyNumbers: number[] = [];
   // convert
