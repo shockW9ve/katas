@@ -1,4 +1,4 @@
-const isbnToValidate = "123-456-789-1234";
+const isbnToValidate = "121-446-789-1234";
 
 function isValidIsbn13(isbn: string): boolean {
   if (!isbn) {
@@ -23,34 +23,19 @@ function isValidIsbn13(isbn: string): boolean {
     return false;
   }
 
-  const calc: [] = [];
+  const calc = [];
   for (let i = 0, j = together.length; i < together.length; i++, j--) {
-    console.log(together[i]);
     if (j % 2 > 0) {
-      let first: number = 1:number * together[i];
-      // calc.push(first);
+      calc.push(Number(together[i]) * 1);
     } else {
-      // calc.push(together[i] * 3);
+      calc.push(Number(together[i]) * 3);
     }
   }
   console.log(calc);
 
-  // split
-  const splitArr = isbn.split("-");
-  console.log(splitArr);
-  const singleDigit = splitArr.join();
-  console.log(singleDigit);
-  const onlyNumbers: number[] = [];
-  // convert
-  for (let num of splitArr) {
-    let nr = Number(num);
-    if (typeof nr !== "number" && isNaN(nr)) {
-      return false;
-    }
-    onlyNumbers.push(nr);
-  }
-  // checks
-  if (onlyNumbers.join().length !== 13) {
+  const sum = calc.reduce((prev, cur) => prev + cur, 0);
+  console.log(sum);
+  if (sum % 10 !== 0) {
     return false;
   }
 

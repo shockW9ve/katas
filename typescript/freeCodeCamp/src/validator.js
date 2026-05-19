@@ -1,4 +1,4 @@
-var isbnToValidate = "123-456-789-1234";
+var isbnToValidate = "121-446-789-1234";
 function isValidIsbn13(isbn) {
     if (!isbn) {
         throw new Error("ISBN is missing");
@@ -20,33 +20,17 @@ function isValidIsbn13(isbn) {
     }
     var calc = [];
     for (var i = 0, j = together.length; i < together.length; i++, j--) {
-        console.log(together[i]);
         if (j % 2 > 0) {
-            var first = together[i] * 1;
-            // calc.push(first);
+            calc.push(Number(together[i]) * 1);
         }
         else {
-            // calc.push(together[i] * 3);
+            calc.push(Number(together[i]) * 3);
         }
     }
     console.log(calc);
-    // split
-    var splitArr = isbn.split("-");
-    console.log(splitArr);
-    var singleDigit = splitArr.join();
-    console.log(singleDigit);
-    var onlyNumbers = [];
-    // convert
-    for (var _i = 0, splitArr_1 = splitArr; _i < splitArr_1.length; _i++) {
-        var num = splitArr_1[_i];
-        var nr = Number(num);
-        if (typeof nr !== "number" && isNaN(nr)) {
-            return false;
-        }
-        onlyNumbers.push(nr);
-    }
-    // checks
-    if (onlyNumbers.join().length !== 13) {
+    var sum = calc.reduce(function (prev, cur) { return prev + cur; }, 0);
+    console.log(sum);
+    if (sum % 10 !== 0) {
         return false;
     }
     return true;
