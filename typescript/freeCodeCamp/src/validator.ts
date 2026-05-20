@@ -1,5 +1,28 @@
 const isbnToValidate = "121-446-789-1234";
 
+function isValidIsbn(isbn: string): boolean {
+  if (isbn.trim() === "") {
+    return false;
+  }
+
+  const digits = isbn.replace(/[-\s]/g, "");
+
+  if (!/^\d{13}$/.test(digits)) {
+    return false;
+  }
+  console.log("2:" + digits);
+
+  const sum = digits.split("").reduce((total, digit, index) => {
+    const weight = index % 2 === 0 ? 1 : 3;
+    const value = Number(digit) * weight;
+
+    console.log({ index, digit, weight, value, total });
+    return total + value;
+  }, 0);
+
+  return sum % 10 === 0;
+}
+
 function isValidIsbn13(isbn: string): boolean {
   if (!isbn) {
     throw new Error("ISBN is missing");
@@ -45,3 +68,7 @@ function isValidIsbn13(isbn: string): boolean {
 const result = isValidIsbn13(isbnToValidate);
 
 console.log(result);
+
+const result2 = isValidIsbn(isbnToValidate);
+
+console.log({ result2 });
